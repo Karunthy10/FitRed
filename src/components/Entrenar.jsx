@@ -101,7 +101,7 @@ function da({ goRoutines: e }) {
                   o("b", { children: m.name }),
                   o("span", {
                     children: E
-                      ? "\u2714 hecha"
+                      ? "\u2713 hecha"
                       : `${m.exercises.length} ejercicios \u203A`,
                   }),
                 ],
@@ -158,7 +158,7 @@ function da({ goRoutines: e }) {
                   m.workingSets,
                   "\xD7",
                   m.repRange,
-                  " \xB7 \u23F1 ",
+                  " \xB7 tempo ",
                   m.tempo || E?.tempo || "2-0-1",
                   " \xB7 descanso ",
                   Math.round(m.restSeconds / 60),
@@ -170,7 +170,7 @@ function da({ goRoutines: e }) {
                 l("div", {
                   className: "techband",
                   children: [
-                    "\u{1F525} ",
+                    
                     m.technique,
                     ": ",
                     $[m.technique] || "apl\xEDcala en la \xFAltima serie",
@@ -180,13 +180,13 @@ function da({ goRoutines: e }) {
                 o("div", {
                   className: "hintline small",
                   children: B.up
-                    ? `\u{1F4C8} Sube a ${B.w} ${r.unit} \u2014 llegaste al tope de reps`
-                    : `\u{1F3AF} Supera ${B.w} ${r.unit} \xD7 ${B.r}`,
+                    ? `Sube a ${B.w} ${r.unit} \u2014 llegaste al tope de reps`
+                    : `Supera ${B.w} ${r.unit} \xD7 ${B.r}`,
                 }),
               m.note &&
                 l("div", {
                   className: "note small",
-                  children: ["\u{1F4A1} ", m.note],
+                  children: [m.note],
                 }),
               o(ba, { re: m, unit: r.unit }),
               Array.from({ length: m.workingSets }, (va, R) => {
@@ -357,7 +357,7 @@ function ba({ re: e, unit: a }) {
       l("button", {
         className: "mini",
         onClick: () => i((s) => !s),
-        children: ["\u{1F525} Calentamiento (", e.warmupSets, ")"],
+        children: ["Calentamiento (", e.warmupSets, ")"],
       }),
       r &&
         l("div", {

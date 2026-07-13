@@ -120,12 +120,12 @@ function _e({ goForum: e, pickMode: a, onPick: r }) {
                           href: u.videoUrl,
                           target: "_blank",
                           rel: "noreferrer",
-                          children: "\u25B6 T\xE9cnica",
+                          children: "T\xE9cnica \u203A",
                         }),
                         l("button", {
                           className: "btn ghost",
                           onClick: () => e(u.id),
-                          children: ["\u{1F4AC} Foro (", Y(u.id).length, ")"],
+                          children: ["Foro (", Y(u.id).length, ")"],
                         }),
                         a &&
                           o("button", {

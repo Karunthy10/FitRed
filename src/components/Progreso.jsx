@@ -121,10 +121,10 @@ function ga() {
                 children: !sy
                   ? "Comprobando conexión con la nube…"
                   : sy.anonDisabled
-                    ? "⚠️ Sincronización con la nube desactivada"
+                    ? "Sincronización con la nube desactivada"
                     : sy.authed && sy.online && sy.lastSyncOk !== false
-                      ? "☁️ Sincronizado con la nube ✓"
-                      : "📴 Sin conexión, guardado local",
+                      ? "Sincronizado con la nube ✓"
+                      : "Sin conexión, guardado local",
               }),
             }),
             l("div", {
@@ -156,7 +156,7 @@ function ga() {
                 o("p", {
                   className: "dim small",
                   children:
-                    "Tus datos viven en este tel\xE9fono. Exporta un respaldo o p\xE1salo a otro dispositivo.",
+                    "Adem\xE1s del respaldo autom\xE1tico en la nube, puedes exportar una copia manual.",
                 }),
                 l("div", {
                   className: "row gap",
@@ -167,15 +167,15 @@ function ga() {
                         let t = new Blob([Oe()], { type: "application/json" }),
                           n = document.createElement("a");
                         ((n.href = URL.createObjectURL(t)),
-                          (n.download = "fitred-respaldo.json"),
+                          (n.download = "kilo-respaldo.json"),
                           n.click());
                       },
-                      children: "\u2B07 Exportar",
+                      children: "Exportar",
                     }),
                     o("button", {
                       className: "btn ghost",
                       onClick: () => c.current.click(),
-                      children: "\u2B06 Importar",
+                      children: "Importar",
                     }),
                     o("input", {
                       ref: c,
@@ -187,7 +187,7 @@ function ga() {
                         if (n)
                           try {
                             (He(await n.text()),
-                              alert("Respaldo importado \u2714"),
+                              alert("Respaldo importado \u2713"),
                               location.reload());
                           } catch {
                             alert("Archivo inv\xE1lido");

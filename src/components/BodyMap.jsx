@@ -3,7 +3,7 @@ import { jsx as g, jsxs as Je } from "react/jsx-runtime";
 function oe({ side: e, selected: a, onSelect: r }) {
   let i = (s) => ({
       fill: a === s ? "var(--blue)" : "#262a33",
-      stroke: a === s ? "#8fb3ff" : "#3a4050",
+      stroke: a === s ? "#ff8a80" : "#3a4050",
       strokeWidth: 1.2,
       cursor: "pointer",
     }),

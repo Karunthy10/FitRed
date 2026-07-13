@@ -100,7 +100,7 @@ function ca({ id: e, readOnly: a, goBack: r, goPickExercise: i }) {
                               u.workingSets,
                               "\xD7",
                               u.repRange,
-                              " \xB7 \u23F1 ",
+                              " \xB7 tempo ",
                               u.tempo || C(u.exId)?.tempo || "2-0-1",
                               " \xB7 RIR ",
                               String(u.rir?.easy),
@@ -114,7 +114,7 @@ function ca({ id: e, readOnly: a, goBack: r, goPickExercise: i }) {
                           u.note &&
                             l("div", {
                               className: "note small",
-                              children: ["\u{1F4A1} ", u.note],
+                              children: [u.note],
                             }),
                         ],
                       }),

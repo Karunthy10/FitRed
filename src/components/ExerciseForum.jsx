@@ -45,7 +45,7 @@ function ta({ exId: e, goBack: a }) {
             href: t.videoUrl,
             target: "_blank",
             rel: "noreferrer",
-            children: "\u25B6 Ver t\xE9cnica correcta",
+            children: "Ver t\xE9cnica correcta \u203A",
           }),
         ],
       }),

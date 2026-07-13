@@ -359,7 +359,7 @@ var Ke = (e) =>
       comments: [
         [
           "demo-ana",
-          "La copi\xE9, primera semana brutal el volumen de hombro \u{1F525}",
+          "La copi\xE9, primera semana brutal el volumen de hombro",
           5,
         ],
         [
@@ -432,7 +432,7 @@ var Ke = (e) =>
       body: "Sin secretos: 4 d\xEDas/semana sin fallar, super\xE1vit ligero, dormir 7+ horas. El progreso no fue lineal, hubo 3 semanas estancado en press banca hasta que ajust\xE9 el descanso entre series.",
       votes: 15,
       comments: [
-        ["demo-caro", "Enorme cambio \u{1F4AA}", 2],
+        ["demo-caro", "Enorme cambio", 2],
         [
           "karunthy",
           "La parte de dormir es la que todos ignoran. Bien ah\xED",

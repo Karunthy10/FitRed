@@ -24,7 +24,7 @@ var oa = (e) => `${Math.floor(e / 60)}:${String(e % 60).padStart(2, "0")}`,
     l("button", {
       className: "heart" + (e.likedByMe ? " on" : ""),
       onClick: a,
-      children: ["\u2764 ", e.likes],
+      children: ["\u2665\uFE0E ", e.likes],
     });
 
 export { oa, S, W, Ye };

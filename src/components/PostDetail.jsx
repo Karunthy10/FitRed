@@ -45,7 +45,7 @@ function ia({ postId: e, goBack: a, goRoutine: r }) {
                 o("button", {
                   className: "btn",
                   onClick: () => r(n.routineRef),
-                  children: "\u{1F4CB} Ver rutina",
+                  children: "Ver rutina",
                 }),
             ],
           }),

@@ -29,7 +29,7 @@ function la({ goEdit: e, goExplore: a, force9: r }) {
           o("div", {
             className: "card dim",
             children:
-              "A\xFAn no tienes rutinas. Crea una o copia la de otro usuario \u{1F447}",
+              "A\xFAn no tienes rutinas. Crea una o copia la de otro usuario",
           }),
         c.map((n) =>
           l(
@@ -92,7 +92,7 @@ function la({ goEdit: e, goExplore: a, force9: r }) {
                         confirm("\xBFBorrar rutina?") &&
                           (Pe(n.id), i((s) => s + 1));
                       },
-                      children: "\u{1F5D1}",
+                      children: "Borrar",
                     }),
                   ],
                 }),
@@ -133,10 +133,10 @@ function la({ goEdit: e, goExplore: a, force9: r }) {
                         (i((d) => d + 1),
                           r(),
                           alert(
-                            "Copiada a Mis rutinas \u2714 Ya puedes editarla y entrenarla",
+                            "Copiada a Mis rutinas \u2713 Ya puedes editarla y entrenarla",
                           ));
                       },
-                      children: "\u2B07 Copiar",
+                      children: "Copiar",
                     }),
                     o("button", {
                       className: "btn ghost",

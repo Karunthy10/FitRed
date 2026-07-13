@@ -71,10 +71,10 @@ function sa({ openPost: e, goRoutine: a }) {
                     l("div", {
                       className: "dim small",
                       children: [
-                        "\u{1F4AC} ",
+                        
                         s.comments.length,
                         " comentarios ",
-                        s.routineRef && "\xB7 \u{1F4CB} rutina adjunta",
+                        s.routineRef && "\xB7 rutina adjunta",
                       ],
                     }),
                   ],
