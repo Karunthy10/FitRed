@@ -1,13 +1,16 @@
 import { Fragment as I, jsx as o, jsxs as l } from "react/jsx-runtime";
-import { useState as x, useRef as re } from "react";
+import { useState as x, useRef as re, useEffect as fx } from "react";
 import { S } from "./ui.jsx";
 import { q, ee, ae, C, Fe, $e, Ve, Oe, He, ve } from "../data/store.js";
+import { subscribeSyncStatus } from "../data/sync.js";
 
 function ga() {
   let [e, a] = x("musculos"),
     [, r] = x(0),
     i = q(),
-    c = re(null);
+    c = re(null),
+    [sy, sySet] = x(null);
+  fx(() => subscribeSyncStatus(sySet), []);
   return l("div", {
     className: "pad",
     children: [
@@ -112,6 +115,18 @@ function ga() {
       e === "datos" &&
         l(I, {
           children: [
+            o("div", {
+              className: "card syncstatus",
+              children: o("b", {
+                children: !sy
+                  ? "Comprobando conexión con la nube…"
+                  : sy.anonDisabled
+                    ? "⚠️ Sincronización con la nube desactivada"
+                    : sy.authed && sy.online && sy.lastSyncOk !== false
+                      ? "☁️ Sincronizado con la nube ✓"
+                      : "📴 Sin conexión, guardado local",
+              }),
+            }),
             l("div", {
               className: "card",
               children: [
