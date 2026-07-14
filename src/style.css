@@ -949,6 +949,40 @@ h3 {
   font-size: 12px;
   font-weight: 700;
 }
+/* Credencial (cédula profesional) en el perfil */
+.credline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+.credbadge {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 10px;
+  background: rgba(91, 140, 255, 0.14);
+  color: #8fb3ff;
+  border-radius: 5px;
+  padding: 2px 7px;
+}
+.crednum {
+  color: var(--tiza);
+  font-variant-numeric: tabular-nums;
+}
+.fileattach {
+  display: block;
+  margin: 6px 0;
+}
+.fileattach .btn {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+}
+
 .followrow {
   display: flex;
   gap: 18px;

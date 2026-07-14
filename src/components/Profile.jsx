@@ -14,6 +14,9 @@ import {
 } from "../data/store.js";
 
 const ROLES = ["Atleta", "Entrenador", "Influencer", "Nutriólogo", "Médico"];
+// Oficios regulados que requieren cédula profesional para verificarse
+const CEDULA_ROLES = ["Nutriólogo", "Médico"];
+const needsCedula = (role) => CEDULA_ROLES.includes(role);
 
 // Formatea conteos grandes: 8600 -> "8.6k"
 const fmtk = (n) =>
@@ -42,6 +45,17 @@ function pf({ userId, goBack, openRoutine, openPost }) {
             {u.verified && <Vb />}
           </div>
           {u.role && <span className="rolepill">{u.role}</span>}
+          {needsCedula(u.role) && u.cedula && (
+            <div className="credline">
+              <span className="credbadge">Cédula prof.</span>
+              <span className="crednum">{u.cedula}</span>
+              {u.verified ? (
+                <Vb />
+              ) : u.verifyRequested ? (
+                <span className="dim small">· en revisión</span>
+              ) : null}
+            </div>
+          )}
           <div className="dim small" style={{ marginTop: 4 }}>
             {u.yearsTraining != null && `${u.yearsTraining} años entrenando`}
             {u.yearsTraining != null && u.age != null && " · "}
@@ -122,10 +136,14 @@ function EditProfile({ u, force }) {
   const [years, setYears] = useState(u.yearsTraining ?? "");
   const [age, setAge] = useState(u.age ?? "");
   const [bio, setBio] = useState(u.bio || "");
+  const [cedula, setCedula] = useState(u.cedula || "");
+  const [doc, setDoc] = useState(u.cedulaDoc || "");
   const save = (patch) => {
     updateProfile(patch);
     force((s) => s + 1);
   };
+  const requiresCedula = needsCedula(role);
+  const canRequest = !requiresCedula || cedula.trim().length > 0;
   return (
     <div className="card">
       <b>Editar mi perfil</b>
@@ -189,6 +207,38 @@ function EditProfile({ u, force }) {
         }}
       />
 
+      {requiresCedula && (
+        <>
+          <span className="flabel">Cédula profesional</span>
+          <input
+            inputMode="numeric"
+            placeholder="Número de cédula profesional"
+            value={cedula}
+            onChange={(e) => {
+              setCedula(e.target.value);
+              save({ cedula: e.target.value });
+            }}
+          />
+          <label className="fileattach">
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const f = e.target.files[0];
+                if (f) {
+                  setDoc(f.name);
+                  save({ cedulaDoc: f.name });
+                }
+              }}
+            />
+            <span className="btn ghost">
+              {doc ? `Documento: ${doc}` : "Subir documento de cédula"}
+            </span>
+          </label>
+        </>
+      )}
+
       <div className="verifybox">
         {u.verified ? (
           <span className="dim small">
@@ -199,17 +249,19 @@ function EditProfile({ u, force }) {
         ) : (
           <button
             className="btn ghost"
+            disabled={!canRequest}
             onClick={() => {
               requestVerify();
               force((s) => s + 1);
             }}
           >
-            Solicitar verificación
+            {requiresCedula ? "Enviar cédula y solicitar verificación" : "Solicitar verificación"}
           </button>
         )}
         <div className="dim small" style={{ marginTop: 6 }}>
-          La verificación (influencer, médico, nutriólogo…) la concede el
-          equipo de Kilo tras revisar credenciales.
+          {requiresCedula
+            ? "Los oficios de salud (médico, nutriólogo) se verifican validando tu cédula profesional en el registro oficial. El equipo de Kilo la revisa."
+            : "Influencers y atletas se verifican sin cédula; el equipo de Kilo revisa la cuenta. Los oficios de salud requieren cédula profesional."}
         </div>
       </div>
     </div>
