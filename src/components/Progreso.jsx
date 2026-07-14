@@ -1,10 +1,10 @@
 import { Fragment as I, jsx as o, jsxs as l } from "react/jsx-runtime";
 import { useState as x, useRef as re, useEffect as fx } from "react";
 import { S } from "./ui.jsx";
-import { q, ee, ae, C, Fe, $e, Ve, Oe, He, ve } from "../data/store.js";
+import { q, ee, ae, C, Fe, $e, Ve, Oe, He, ve, meId, usr } from "../data/store.js";
 import { subscribeSyncStatus } from "../data/sync.js";
 
-function ga() {
+function ga({ openProfile }) {
   let [e, a] = x("musculos"),
     [, r] = x(0),
     i = q(),
@@ -115,6 +115,27 @@ function ga() {
       e === "datos" &&
         l(I, {
           children: [
+            l("button", {
+              className: "card profilecard",
+              onClick: () => openProfile && openProfile(meId()),
+              children: [
+                l("div", {
+                  className: "grow",
+                  children: [
+                    l("b", {
+                      children: ["@", usr(meId()).username],
+                    }),
+                    o("div", {
+                      className: "dim small",
+                      children:
+                        (usr(meId()).role || "Atleta") +
+                        " · toca para ver y editar tu perfil",
+                    }),
+                  ],
+                }),
+                o("span", { className: "dim", children: "›" }),
+              ],
+            }),
             o("div", {
               className: "card syncstatus",
               children: o("b", {

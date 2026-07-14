@@ -7,6 +7,8 @@ import { da as Entrenar } from "./Entrenar.jsx";
 import { la as Rutinas } from "./Rutinas.jsx";
 import { ga as Progreso } from "./Progreso.jsx";
 import { sa as Comunidad } from "./Comunidad.jsx";
+import { pf as Profile } from "./Profile.jsx";
+import { meId } from "../data/store.js";
 
 // Íconos de línea del tab bar (estilo SF Symbols, stroke por currentColor)
 const ICONS = {
@@ -72,8 +74,9 @@ function te() {
     screen = (
       <PostDetail
         postId={overlay.id}
-        goBack={() => go(null)}
-        goRoutine={(s) => go({ t: "editor", id: s, ro: true })}
+        goBack={() => go(overlay.back || null)}
+        goRoutine={(s) => go({ t: "editor", id: s, ro: true, back: overlay })}
+        openProfile={(uid) => go({ t: "profile", id: uid, back: overlay })}
       />
     );
   else if (overlay?.t === "editor")
@@ -96,6 +99,15 @@ function te() {
         }}
       />
     );
+  else if (overlay?.t === "profile")
+    screen = (
+      <Profile
+        userId={overlay.id}
+        goBack={() => go(overlay.back || null)}
+        openRoutine={(r) => go({ t: "editor", id: r, ro: true, back: overlay })}
+        openPost={(pid) => go({ t: "post", id: pid, back: overlay })}
+      />
+    );
   else if (tab === "entrenar")
     screen = <Entrenar goRoutines={() => setTab("rutinas")} />;
   else if (tab === "rutinas")
@@ -103,12 +115,20 @@ function te() {
       <Rutinas
         force9={() => force((s) => s + 1)}
         goEdit={(s, d) => go({ t: "editor", id: s, ro: d })}
+        openProfile={(uid) => go({ t: "profile", id: uid })}
       />
     );
   else if (tab === "ejercicios")
     screen = <Ejercicios goForum={(s) => go({ t: "exforum", exId: s })} />;
-  else if (tab === "progreso") screen = <Progreso />;
-  else screen = <Comunidad openPost={(s) => go({ t: "post", id: s })} />;
+  else if (tab === "progreso")
+    screen = <Progreso openProfile={(uid) => go({ t: "profile", id: uid })} />;
+  else
+    screen = (
+      <Comunidad
+        openPost={(s) => go({ t: "post", id: s })}
+        openProfile={(uid) => go({ t: "profile", id: uid })}
+      />
+    );
 
   return (
     <div className="app">
@@ -116,9 +136,16 @@ function te() {
         <b className="brand">
           <span className="k">K</span>ILO
         </b>
-        <span className="dim small">@karunthy</span>
+        <button
+          className="handlelink dim small"
+          onClick={() => go({ t: "profile", id: meId() })}
+        >
+          @{meId()}
+        </button>
       </header>
-      <main>{screen}</main>
+      <main key={tab + ":" + (overlay?.t || "") + ":" + (overlay?.id || "")}>
+        {screen}
+      </main>
       <nav>
         {TABS.map(([id, label]) => (
           <button

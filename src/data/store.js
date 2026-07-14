@@ -248,11 +248,12 @@ function k(e, a) {
 }
 
 // Ie = publishRoutineAsPost: marca la rutina como pública y publica un post
-// en la comunidad que la referencia
-function Ie(e, a, r) {
+// en la comunidad que la referencia. price opcional (0 = gratis).
+function Ie(e, a, r, price = 0) {
   let i = p.routines[e];
   if (!i) return;
   i.isPublic = !0;
+  i.price = price > 0 ? price : 0;
   let post = {
     id: "p" + Date.now().toString(36),
     userId: p.me,
@@ -260,6 +261,7 @@ function Ie(e, a, r) {
     title: a,
     body: r,
     routineRef: e,
+    price: i.price,
     votes: 0,
     myVote: 0,
     at: Date.now(),
@@ -436,6 +438,42 @@ function De(e, a) {
 // M = getUsername
 var M = (e) => p.users[e]?.username || e;
 
+// usr = getUser: perfil completo (username, bio, role, verified,
+// yearsTraining, age)
+var usr = (e) => p.users[e] || { id: e, username: e };
+
+// meId = id del usuario actual
+var meId = () => p.me;
+
+// updateProfile = edita el perfil propio (rol, años entrenando, edad, bio).
+// No hay tabla de perfiles en el schema, así que es local + snapshot.
+function updateProfile(patch) {
+  if (!p.users[p.me]) p.users[p.me] = { id: p.me, username: p.me };
+  Object.assign(p.users[p.me], patch);
+  h();
+  markLocalWrite();
+}
+
+// requestVerify = solicita verificación de la cuenta. La verificación real
+// la concede el equipo de Kilo (proceso externo); aquí solo se marca la
+// solicitud.
+function requestVerify() {
+  if (!p.users[p.me]) return;
+  p.users[p.me].verifyRequested = true;
+  h();
+  markLocalWrite();
+}
+
+// setRoutinePrice = precio de venta de una rutina propia (0/undefined = gratis)
+function setRoutinePrice(routineId, price) {
+  let r = p.routines[routineId];
+  if (!r) return;
+  r.price = price > 0 ? price : 0;
+  h();
+  markLocalWrite();
+  syncUpdateRoutine(r);
+}
+
 // H = migrateToV2: migración idempotente que agrega ejercicios extra del
 // seed, tempo/cues, e inyecta la rutina privada P. No es una escritura del
 // usuario, así que no se espeja a Supabase (solo se persiste local).
@@ -600,5 +638,6 @@ var Fe = () => [
 export {
   q, h, ve, F, C, j, J, ye, _, we, Y, ke, Se, Z, Ne, Re, Ce, je, k, Ie, Pe,
   qe, Me, Ee, ze, O, Q, K, Be, D, Ae, V, X, Te, Le, De, M, H, Ve, Oe, He,
-  We, Ue, Ge, ee, ae, $e, Fe, pinTip, pinnedTips
+  We, Ue, Ge, ee, ae, $e, Fe, pinTip, pinnedTips,
+  usr, meId, updateProfile, requestVerify, setRoutinePrice
 };

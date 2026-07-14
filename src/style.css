@@ -690,6 +690,36 @@ h3 {
   }
 }
 
+/* Transición suave al cambiar de pantalla/overlay */
+@keyframes screenin {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.app main {
+  animation: screenin 0.2s ease both;
+}
+
+/* Realce del ícono activo en la barra inferior */
+.app nav button.on svg {
+  transform: scale(1.12);
+  transition: transform 0.18s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app main {
+    animation: none;
+  }
+  .app nav button.on svg {
+    transform: none;
+  }
+}
+
 /* Tip del coach (cue integrado del ejercicio) */
 .card.coach {
   border-left: 3px solid var(--ambar);
@@ -817,4 +847,153 @@ h3 {
   font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
+}
+
+/* Handle de usuario + insignia de verificado */
+.handlelink {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font: inherit;
+  font-weight: 600;
+  padding: 0;
+  min-height: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.handlelink.dim {
+  color: var(--ceniza);
+  font-weight: 500;
+}
+.vbadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Precio de rutina en venta */
+.price {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--verde);
+  background: rgba(47, 213, 115, 0.12);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.price.free {
+  color: var(--ceniza);
+  background: var(--acero);
+}
+
+/* Cabecera de perfil */
+.profilehead {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.avatar {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rojo), var(--brasa));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 28px;
+}
+.pname {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.rolepill {
+  display: inline-block;
+  margin-top: 4px;
+  background: rgba(255, 59, 47, 0.12);
+  color: var(--rojo);
+  border-radius: 6px;
+  padding: 2px 9px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.pbio {
+  margin-top: 6px;
+  line-height: 1.5;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.flabel {
+  display: block;
+  font-size: 11px;
+  color: var(--ceniza);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  margin: 10px 0 2px;
+}
+.verifybox {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--humo);
+}
+
+/* Panel de publicar/vender rutina */
+.publishpanel {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--humo);
+}
+.pricewrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--carbon);
+  border: 1px solid var(--humo);
+  border-radius: 12px;
+  padding-left: 10px;
+  max-width: 180px;
+  flex: 1;
+}
+.pricewrap span {
+  color: var(--ceniza);
+  font-family: var(--mono);
+}
+.pricewrap input {
+  border: none;
+  background: none;
+  margin: 0;
+}
+
+/* Tarjeta de acceso al perfil en Progreso > Datos */
+.profilecard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  min-height: 0;
+}
+.profilecard b {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
 }

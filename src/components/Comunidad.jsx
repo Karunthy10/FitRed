@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { S, W, rl } from "./ui.jsx";
-import { D, Ae, X, Te, M } from "../data/store.js";
+import { S, W, rl, Hn } from "./ui.jsx";
+import { D, Ae, X, Te } from "../data/store.js";
 
 // Ventanas temporales estilo Reddit ("top de hoy / semana / mes")
 const WINDOWS = [
@@ -16,7 +16,7 @@ const COMPOSE_CATS = D.filter(([id]) => id !== "rutinas");
 
 const catLabel = (id) => D.find((d) => d[0] === id)?.[1] || id;
 
-function sa({ openPost }) {
+function sa({ openPost, openProfile }) {
   const [cat, setCat] = useState(null);
   const [win, setWin] = useState("todo");
   const [, force] = useState(0);
@@ -85,11 +85,13 @@ function sa({ openPost }) {
                 <span className={"ptype t-" + post.category}>
                   {catLabel(post.category)}
                 </span>
-                <span className="dim small">
-                  @{M(post.userId)} · {rl(post.at)}
-                </span>
+                {post.price > 0 && <span className="price">${post.price}</span>}
               </div>
               <b>{post.title}</b>
+              <div className="row gap small dim" style={{ marginTop: 2 }}>
+                <Hn id={post.userId} onOpen={openProfile} />
+                <span>· {rl(post.at)}</span>
+              </div>
               <div className="dim small">
                 {post.comments.length} comentarios
                 {post.routineRef && " · rutina adjunta"}

@@ -1,143 +1,199 @@
-import { jsx as g, jsxs as Je } from "react/jsx-runtime";
+// Mapa corporal anatómico. Cada lado se dibuja una vez y se refleja con una
+// transform (matrix -1 … 240) para mantener simetría perfecta. Los músculos
+// son paths seleccionables; el seleccionado se rellena con degradado rojo.
 
-function oe({ side: e, selected: a, onSelect: r }) {
-  let i = (s) => ({
-      fill: a === s ? "var(--blue)" : "#262a33",
-      stroke: a === s ? "#ff8a80" : "#3a4050",
-      strokeWidth: 1.2,
-      cursor: "pointer",
-    }),
-    c = ({ m: s, d }) => g("path", { d, style: i(s), onClick: () => r(s) }),
-    t = ({ m: s, cx: d, cy: u, rx: b, ry: y }) =>
-      g("ellipse", {
-        cx: d,
-        cy: u,
-        rx: b,
-        ry: y,
-        style: i(s),
-        onClick: () => r(s),
-      }),
-    n = ({ m: s, x: d, y: u, w: b, h: y, r: f = 8 }) =>
-      g("rect", {
-        x: d,
-        y: u,
-        width: b,
-        height: y,
-        rx: f,
-        style: i(s),
-        onClick: () => r(s),
-      });
-  return e === "front"
-    ? Je("svg", {
-        viewBox: "0 0 200 420",
-        style: {
-          width: "100%",
-          maxWidth: 230,
-          display: "block",
-          margin: "0 auto",
-        },
-        children: [
-          g("circle", {
-            cx: "100",
-            cy: "30",
-            r: "20",
-            fill: "#1c1f26",
-            stroke: "#3a4050",
-          }),
-          g("rect", {
-            x: "90",
-            y: "50",
-            width: "20",
-            height: "12",
-            fill: "#1c1f26",
-          }),
-          g(t, { m: "Hombros", cx: "63", cy: "75", rx: "15", ry: "13" }),
-          g(t, { m: "Hombros", cx: "137", cy: "75", rx: "15", ry: "13" }),
-          g(c, {
-            m: "Pecho",
-            d: "M75 68 Q100 62 125 68 L125 100 Q100 112 75 100 Z",
-          }),
-          g(t, { m: "B\xEDceps", cx: "54", cy: "112", rx: "10", ry: "20" }),
-          g(t, { m: "B\xEDceps", cx: "146", cy: "112", rx: "10", ry: "20" }),
-          g(t, { m: "Antebrazo", cx: "48", cy: "158", rx: "8", ry: "22" }),
-          g(t, { m: "Antebrazo", cx: "152", cy: "158", rx: "8", ry: "22" }),
-          g(n, { m: "Abdomen", x: "82", y: "105", w: "36", h: "55", r: "10" }),
-          g(c, { m: "Abdomen", d: "M70 105 L80 105 L80 155 L72 148 Z" }),
-          g(c, { m: "Abdomen", d: "M130 105 L120 105 L120 155 L128 148 Z" }),
-          g(t, { m: "Cu\xE1driceps", cx: "82", cy: "215", rx: "16", ry: "42" }),
-          g(t, {
-            m: "Cu\xE1driceps",
-            cx: "118",
-            cy: "215",
-            rx: "16",
-            ry: "42",
-          }),
-          g(t, { m: "Gemelos", cx: "83", cy: "320", rx: "11", ry: "38" }),
-          g(t, { m: "Gemelos", cx: "117", cy: "320", rx: "11", ry: "38" }),
-          g("text", {
-            x: "100",
-            y: "405",
-            textAnchor: "middle",
-            fill: "#5c6270",
-            fontSize: "11",
-            children: "FRENTE",
-          }),
-        ],
-      })
-    : Je("svg", {
-        viewBox: "0 0 200 420",
-        style: {
-          width: "100%",
-          maxWidth: 230,
-          display: "block",
-          margin: "0 auto",
-        },
-        children: [
-          g("circle", {
-            cx: "100",
-            cy: "30",
-            r: "20",
-            fill: "#1c1f26",
-            stroke: "#3a4050",
-          }),
-          g("rect", {
-            x: "90",
-            y: "50",
-            width: "20",
-            height: "12",
-            fill: "#1c1f26",
-          }),
-          g(c, {
-            m: "Trapecio",
-            d: "M78 62 Q100 52 122 62 L112 88 Q100 82 88 88 Z",
-          }),
-          g(t, { m: "Hombros", cx: "63", cy: "75", rx: "15", ry: "13" }),
-          g(t, { m: "Hombros", cx: "137", cy: "75", rx: "15", ry: "13" }),
-          g(c, {
-            m: "Espalda",
-            d: "M75 88 L125 88 L118 150 Q100 160 82 150 Z",
-          }),
-          g(t, { m: "Tr\xEDceps", cx: "54", cy: "112", rx: "10", ry: "20" }),
-          g(t, { m: "Tr\xEDceps", cx: "146", cy: "112", rx: "10", ry: "20" }),
-          g(t, { m: "Antebrazo", cx: "48", cy: "158", rx: "8", ry: "22" }),
-          g(t, { m: "Antebrazo", cx: "152", cy: "158", rx: "8", ry: "22" }),
-          g(n, { m: "Espalda", x: "85", y: "152", w: "30", h: "20", r: "6" }),
-          g(t, { m: "Gl\xFAteos", cx: "85", cy: "188", rx: "17", ry: "17" }),
-          g(t, { m: "Gl\xFAteos", cx: "115", cy: "188", rx: "17", ry: "17" }),
-          g(t, { m: "Isquios", cx: "82", cy: "248", rx: "15", ry: "38" }),
-          g(t, { m: "Isquios", cx: "118", cy: "248", rx: "15", ry: "38" }),
-          g(t, { m: "Gemelos", cx: "83", cy: "330", rx: "12", ry: "35" }),
-          g(t, { m: "Gemelos", cx: "117", cy: "330", rx: "12", ry: "35" }),
-          g("text", {
-            x: "100",
-            y: "405",
-            textAnchor: "middle",
-            fill: "#5c6270",
-            fontSize: "11",
-            children: "ESPALDA",
-          }),
-        ],
-      });
+const VB = "0 0 240 470";
+
+function oe({ side, selected, onSelect }) {
+  const fill = (m) => (selected === m ? "url(#ksel)" : "#212430");
+  const stroke = (m) => (selected === m ? "#ff6a5e" : "#343845");
+  const M = ({ m, d, key }) => (
+    <path
+      key={key}
+      d={d}
+      onClick={() => onSelect(m)}
+      style={{
+        fill: fill(m),
+        stroke: stroke(m),
+        strokeWidth: 1.1,
+        cursor: "pointer",
+        transition: "fill .15s ease",
+      }}
+    />
+  );
+  // Líneas de estriación (decorativas, no interactivas)
+  const S = ({ d, key }) => (
+    <path
+      key={key}
+      d={d}
+      style={{ fill: "none", stroke: "rgba(0,0,0,.28)", strokeWidth: 0.8 }}
+    />
+  );
+
+  const defs = (
+    <defs>
+      <linearGradient id="ksel" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#ff5a47" />
+        <stop offset="1" stopColor="#e02718" />
+      </linearGradient>
+    </defs>
+  );
+
+  const head = (
+    <g>
+      <circle cx="120" cy="34" r="21" fill="#1b1e27" stroke="#343845" strokeWidth="1.1" />
+      <path d="M112 52 h16 v10 q-8 5 -16 0 Z" fill="#1b1e27" stroke="#343845" strokeWidth="1.1" />
+    </g>
+  );
+
+  const label = (t) => (
+    <text
+      x="120"
+      y="462"
+      textAnchor="middle"
+      fill="#5c6270"
+      fontFamily="'Barlow Condensed',sans-serif"
+      fontSize="14"
+      letterSpacing="2"
+    >
+      {t}
+    </text>
+  );
+
+  // Silueta base (torso + brazos + piernas) detrás de los músculos
+  const silhouette = (d) => (
+    <path d={d} fill="#16171c" stroke="#2a2e37" strokeWidth="1.2" />
+  );
+
+  if (side === "front") {
+    // Músculos del lado izquierdo (se reflejan al derecho)
+    const leftFront = [
+      // Deltoides
+      { m: "Hombros", d: "M96 70 q-20 0 -26 20 q-3 12 8 15 q13 -2 18 -16 q3 -12 0 -19 Z" },
+      // Pectoral (mitad)
+      { m: "Pecho", d: "M116 74 q-20 -2 -30 8 q-8 10 -1 22 q16 9 31 2 q2 -16 0 -32 Z" },
+      // Bíceps
+      { m: "Bíceps", d: "M78 106 q-11 4 -12 26 q0 15 10 15 q9 -3 10 -22 q1 -14 -1 -20 q-3 -1 -7 1 Z" },
+      // Antebrazo
+      { m: "Antebrazo", d: "M76 150 q-9 12 -8 34 q1 13 10 12 q8 -3 8 -24 q0 -18 -3 -24 q-4 -3 -7 2 Z" },
+      // Cuádriceps
+      { m: "Cuádriceps", d: "M116 196 q-24 2 -28 40 q-3 34 10 52 q17 4 18 -30 l2 -60 q-1 -3 -2 -2 Z" },
+      // Gemelos
+      { m: "Gemelos", d: "M112 300 q-16 6 -16 44 q1 26 12 30 q11 -4 10 -40 q-1 -30 -6 -34 Z" },
+    ];
+    const strias = [
+      // pecho
+      { d: "M112 80 q-16 0 -24 8" },
+      { d: "M113 90 q-18 2 -26 10" },
+      // abdomen (verticales + horizontales)
+      { d: "M120 118 v58" },
+      { d: "M108 132 h24 M108 146 h24 M108 160 h22" },
+      // cuádriceps sweep
+      { d: "M104 214 q4 40 8 66" },
+    ];
+    return (
+      <svg viewBox={VB} style={svgStyle}>
+        {defs}
+        {silhouette(
+          "M120 54 q16 0 22 14 q26 4 32 30 q4 20 -2 44 q10 16 10 44 q0 22 -6 34 q-8 4 -14 -2 q-2 4 -3 12 q10 20 12 54 q3 34 -6 62 q-8 22 -14 44 q-6 8 -14 4 q-5 -18 -6 -46 q0 -6 -5 -6 q-5 0 -5 6 q-1 28 -6 46 q-8 4 -14 -4 q-6 -22 -14 -44 q-9 -28 -6 -62 q2 -34 12 -54 q-1 -8 -3 -12 q-6 6 -14 2 q-6 -12 -6 -34 q0 -28 10 -44 q-6 -24 -2 -44 q6 -26 32 -30 q6 -14 22 -14 Z",
+        )}
+        {head}
+        {/* Trapecio (yugo central) */}
+        <M
+          m="Trapecio"
+          d="M120 56 q-16 0 -26 12 q10 -4 26 -4 q16 0 26 4 q-10 -12 -26 -12 Z"
+        />
+        {/* Abdomen central */}
+        <M
+          m="Abdomen"
+          d="M104 112 q16 -4 32 0 q2 30 -2 60 q-14 12 -28 0 q-4 -30 -2 -60 Z"
+        />
+        {/* Lados izquierdo + reflejado */}
+        {leftFront.map((p, i) => (
+          <M key={i} m={p.m} d={p.d} />
+        ))}
+        <g transform="matrix(-1 0 0 1 240 0)">
+          {leftFront.map((p, i) => (
+            <M key={i} m={p.m} d={p.d} />
+          ))}
+        </g>
+        {strias.map((s, i) => (
+          <S key={i} d={s.d} />
+        ))}
+        <g transform="matrix(-1 0 0 1 240 0)">
+          {strias
+            .filter((s) => !s.d.includes("v58") && !s.d.includes("h2"))
+            .map((s, i) => (
+              <S key={i} d={s.d} />
+            ))}
+        </g>
+        {label("FRENTE")}
+      </svg>
+    );
+  }
+
+  // ----- ESPALDA -----
+  const leftBack = [
+    { m: "Hombros", d: "M96 70 q-20 0 -26 20 q-3 12 8 15 q13 -2 18 -16 q3 -12 0 -19 Z" },
+    // Dorsal / espalda (ala)
+    { m: "Espalda", d: "M116 92 q-22 2 -30 22 q-6 22 6 44 q16 6 24 -10 q4 -28 2 -54 q-1 -3 -2 -2 Z" },
+    { m: "Tríceps", d: "M78 106 q-11 4 -12 26 q0 15 10 15 q9 -3 10 -22 q1 -14 -1 -20 q-3 -1 -7 1 Z" },
+    { m: "Antebrazo", d: "M76 150 q-9 12 -8 34 q1 13 10 12 q8 -3 8 -24 q0 -18 -3 -24 q-4 -3 -7 2 Z" },
+    // Glúteo (mitad)
+    { m: "Glúteos", d: "M118 188 q-20 0 -26 18 q-3 16 8 24 q16 4 20 -12 l0 -28 q-1 -3 -2 -2 Z" },
+    // Isquios
+    { m: "Isquios", d: "M114 232 q-20 4 -22 40 q-2 26 10 40 q15 2 16 -30 l0 -48 q-1 -3 -4 -2 Z" },
+    { m: "Gemelos", d: "M112 314 q-16 6 -16 40 q1 24 12 28 q11 -4 10 -36 q-1 -28 -6 -32 Z" },
+  ];
+  const striasB = [
+    // trapecio diamante
+    { d: "M120 62 v40" },
+    // dorsal V
+    { d: "M116 100 q-14 8 -22 24" },
+    { d: "M118 116 q-16 8 -24 22" },
+    // isquios
+    { d: "M104 246 q3 40 8 62" },
+  ];
+  return (
+    <svg viewBox={VB} style={svgStyle}>
+      {defs}
+      {silhouette(
+        "M120 54 q16 0 22 14 q26 4 32 30 q4 20 -2 44 q10 16 10 44 q0 22 -6 34 q-8 4 -14 -2 q-2 4 -3 12 q10 20 12 54 q3 34 -6 62 q-8 22 -14 44 q-6 8 -14 4 q-5 -18 -6 -46 q0 -6 -5 -6 q-5 0 -5 6 q-1 28 -6 46 q-8 4 -14 -4 q-6 -22 -14 -44 q-9 -28 -6 -62 q2 -34 12 -54 q-1 -8 -3 -12 q-6 6 -14 2 q-6 -12 -6 -34 q0 -28 10 -44 q-6 -24 -2 -44 q6 -26 32 -30 q6 -14 22 -14 Z",
+      )}
+      {head}
+      {/* Trapecio (diamante superior) */}
+      <M
+        m="Trapecio"
+        d="M120 56 q-24 4 -30 20 q14 -8 30 -8 q16 0 30 8 q-6 -16 -30 -20 Z M120 74 q-14 0 -22 14 q10 18 22 20 q12 -2 22 -20 q-8 -14 -22 -14 Z"
+      />
+      {leftBack.map((p, i) => (
+        <M key={i} m={p.m} d={p.d} />
+      ))}
+      <g transform="matrix(-1 0 0 1 240 0)">
+        {leftBack.map((p, i) => (
+          <M key={i} m={p.m} d={p.d} />
+        ))}
+      </g>
+      {striasB.map((s, i) => (
+        <S key={i} d={s.d} />
+      ))}
+      <g transform="matrix(-1 0 0 1 240 0)">
+        {striasB
+          .filter((s) => !s.d.includes("v40"))
+          .map((s, i) => (
+            <S key={i} d={s.d} />
+          ))}
+      </g>
+      {label("ESPALDA")}
+    </svg>
+  );
 }
+
+const svgStyle = {
+  width: "100%",
+  maxWidth: 260,
+  display: "block",
+  margin: "6px auto",
+};
 
 export { oe };

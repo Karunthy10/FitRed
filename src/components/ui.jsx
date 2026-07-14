@@ -1,4 +1,5 @@
 import { jsx as o, jsxs as l } from "react/jsx-runtime";
+import { usr } from "../data/store.js";
 
 // rl = relative time: timestamp (ms) -> "ahora", "hace 3 h", "hace 5 d", ...
 var rl = (ts) => {
@@ -35,6 +36,22 @@ var rl = (ts) => {
       className: "heart" + (e.likedByMe ? " on" : ""),
       onClick: a,
       children: ["\u2665\uFE0E ", e.likes],
+    }),
+  // Vb = insignia de verificado (\u2713 en c\u00EDrculo)
+  Vb = () =>
+    o("span", { className: "vbadge", title: "Cuenta verificada", children: "\u2713" }),
+  // Hn = handle de usuario: "@nombre" + insignia si est\u00E1 verificado, abre
+  // el perfil al tocar
+  Hn = ({ id: e, onOpen: a }) => {
+    let r = usr(e);
+    return l("button", {
+      className: "handlelink",
+      onClick: (i) => {
+        i.stopPropagation();
+        a && a(e);
+      },
+      children: ["@", r.username, r.verified && o(Vb, {})],
     });
+  };
 
-export { oa, rl, S, W, Ye };
+export { oa, rl, S, W, Ye, Vb, Hn };
