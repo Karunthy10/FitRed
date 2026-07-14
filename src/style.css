@@ -864,6 +864,117 @@ h3 {
   white-space: nowrap;
 }
 
+/* Botones de registro rápido de series */
+.repeatlast,
+.addset {
+  margin-top: 10px;
+  color: var(--tiza);
+}
+.repeatlast {
+  width: 100%;
+}
+.addset {
+  width: 100%;
+  border-style: dashed;
+  color: var(--ceniza);
+}
+
+/* Ayuda en contexto (glosario) */
+.helpbtn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--humo);
+  color: var(--ceniza);
+  font-weight: 700;
+  font-size: 15px;
+}
+.helpbtn.on {
+  background: var(--rojo);
+  border-color: var(--rojo);
+  color: #fff;
+}
+.glossary p {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 6px 0;
+  color: var(--ceniza);
+}
+.glossary b {
+  color: var(--tiza);
+}
+
+/* Bienvenida de primer uso */
+.card.welcome {
+  border-color: rgba(255, 59, 47, 0.4);
+}
+.welcometitle {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  display: block;
+  margin-bottom: 4px;
+}
+.card.welcome p {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+/* Resumen de sesión */
+.card.summary {
+  text-align: center;
+  padding: 22px 16px;
+  border-color: rgba(47, 213, 115, 0.4);
+}
+.sumtitle {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 26px;
+  color: var(--verde);
+}
+.sumday {
+  font-family: var(--display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ceniza);
+  margin-bottom: 16px;
+}
+.sumgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.sumstat {
+  background: var(--carbon);
+  border: 1px solid var(--humo);
+  border-radius: 14px;
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sumstat b {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+}
+.sumstat b.accent {
+  color: var(--verde);
+}
+.sumstat span {
+  font-size: 12px;
+  color: var(--ceniza);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* Handle de usuario + insignia de verificado */
 .handlelink {
   background: none;
