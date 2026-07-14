@@ -43,9 +43,13 @@ function he() {
     myRoutines: [],
     activeRoutine: null,
     activeWeek: 1,
-    posts: me.map((a) => ({
+    posts: me.map((a, idx) => ({
       ...a,
+      // Publicaciones con rutina adjunta son del tipo "rutinas"
+      category: a.routineRef ? "rutinas" : a.category,
       myVote: 0,
+      // Timestamps escalonados (hoy hacia atrás) para el filtro temporal
+      at: a.at || e - idx * 3 * 864e5,
       comments: (a.comments || []).map(([r, i, c], t) => ({
         id: a.id + "c" + t,
         userId: r,
@@ -166,6 +170,24 @@ function Se(e) {
   syncExerciseComment(a);
 }
 
+// pinTip = fijar/desfijar un tip de un ejercicio para que se te recuerde al
+// entrenar. Es una preferencia local (no hay columna remota); igual queda
+// respaldada dentro del snapshot de estado.
+function pinTip(e) {
+  let a = p.exComments.find((r) => r.id === e);
+  if (!a) return;
+  a.pinned = !a.pinned;
+  h();
+  markLocalWrite();
+}
+
+// pinnedTips = tips fijados por el usuario para un ejercicio (los que
+// Entrenar recuerda durante la sesión), ordenados por likes
+var pinnedTips = (e) =>
+  p.exComments
+    .filter((a) => a.exId === e && a.pinned)
+    .sort((a, r) => r.likes - a.likes);
+
 // Z = getRoutine, Ne = listPublicRoutines, Re = listMyRoutines
 var Z = (e) => p.routines[e],
   Ne = () => Object.values(p.routines).filter((e) => e.isPublic),
@@ -234,12 +256,13 @@ function Ie(e, a, r) {
   let post = {
     id: "p" + Date.now().toString(36),
     userId: p.me,
-    category: "ejercicios",
+    category: "rutinas",
     title: a,
     body: r,
     routineRef: e,
     votes: 0,
     myVote: 0,
+    at: Date.now(),
     comments: [],
   };
   p.posts.unshift(post);
@@ -328,19 +351,24 @@ function Be(e) {
   return a;
 }
 
-// D = categorías de posts de la comunidad
+// D = categorías/tipos de publicación de la comunidad. Cada publicación es
+// como un post de Reddit: sube/baja puntos y comentarios. "rutinas" son las
+// rutinas compartidas (llevan routineRef).
 var D = [
-  ["tips", "Tips"],
-  ["alimentacion", "Alimentación"],
-  ["progreso", "Progreso"],
+  ["rutinas", "Rutinas"],
   ["ejercicios", "Ejercicios"],
+  ["tips", "Tips"],
+  ["progreso", "Progreso"],
+  ["alimentacion", "Nutrición"],
 ];
 
-// Ae = listPosts: posts de comunidad (opcionalmente filtrados por categoría),
-// ordenados por votos
-function Ae(e) {
+// Ae = listPosts: publicaciones de comunidad, opcionalmente filtradas por
+// categoría y por ventana temporal (since = timestamp mínimo, estilo "top de
+// hoy/semana/mes"), ordenadas por puntos (top primero)
+function Ae(e, since) {
   return p.posts
     .filter((a) => !e || a.category === e)
+    .filter((a) => !since || (a.at || 0) >= since)
     .sort((a, r) => r.votes - a.votes);
 }
 
@@ -368,6 +396,7 @@ function Te({ category: e, title: a, body: r }) {
     body: r,
     votes: 1,
     myVote: 1,
+    at: Date.now(),
     comments: [],
   };
   p.posts.unshift(post);
@@ -571,5 +600,5 @@ var Fe = () => [
 export {
   q, h, ve, F, C, j, J, ye, _, we, Y, ke, Se, Z, Ne, Re, Ce, je, k, Ie, Pe,
   qe, Me, Ee, ze, O, Q, K, Be, D, Ae, V, X, Te, Le, De, M, H, Ve, Oe, He,
-  We, Ue, Ge, ee, ae, $e, Fe
+  We, Ue, Ge, ee, ae, $e, Fe, pinTip, pinnedTips
 };

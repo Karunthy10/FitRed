@@ -1,7 +1,7 @@
 import { Fragment as I, jsx as o, jsxs as l } from "react/jsx-runtime";
 import { useState as x, useEffect as aa, useRef as re } from "react";
 import { oa, S } from "./ui.jsx";
-import { q, H, Z, Ee, C, Q, Be, Ue, We, Ge, O, ze, j, Me } from "../data/store.js";
+import { q, H, Z, Ee, C, Q, Be, Ue, We, Ge, O, ze, j, Me, pinnedTips } from "../data/store.js";
 
 function da({ goRoutines: e }) {
   let [, a] = x(0),
@@ -131,6 +131,7 @@ function da({ goRoutines: e }) {
           l("span", { className: "dim small", children: ["\xB7 semana ", w] }),
         ],
       }),
+      o(wc, { day: ne, workout: n, unit: r.unit }),
       ne.exercises.map((m, N) => {
         let E = C(m.exId),
           z = Q(m.exId, n.id),
@@ -188,6 +189,17 @@ function da({ goRoutines: e }) {
                   className: "note small",
                   children: [m.note],
                 }),
+              (() => {
+                let tips = pinnedTips(m.exId);
+                return tips.length
+                  ? o("div", {
+                      className: "mytips",
+                      children: tips.map((tp) =>
+                        o("div", { className: "mytip", children: tp.body }, tp.id),
+                      ),
+                    })
+                  : null;
+              })(),
               o(ba, { re: m, unit: r.unit }),
               Array.from({ length: m.workingSets }, (va, R) => {
                 let A = n.sets[m.exId]?.[R] || {},
@@ -345,6 +357,59 @@ function ma(e) {
         i.stop(a.currentTime + r + 0.2));
     });
   } catch {}
+}
+// wc = warmupCard: se muestra al ENTRAR a la sesión, antes de registrar.
+// Calcula el calentamiento (ramp-up) de cada ejercicio a partir del último
+// peso de trabajo conocido; si no hay historial, avisa que registres peso.
+function wc({ day: e, workout: a, unit: r }) {
+  let [i, c] = x(!0);
+  let t = e.exercises
+    .map((n) => {
+      let s = C(n.exId),
+        d = n.warmupSets || 0;
+      if (!d) return null;
+      let u = Q(n.exId, a.id),
+        b = 0;
+      if (u) for (let y of u) y?.done && y.w && (b = Math.max(b, +y.w));
+      return { name: s?.name || "?", warm: d, ramp: b ? Ge(d, b) : null };
+    })
+    .filter(Boolean);
+  if (!t.length) return null;
+  return l("div", {
+    className: "card warmup",
+    children: [
+      l("button", {
+        className: "warmhead",
+        onClick: () => c((n) => !n),
+        children: [
+          o("b", { children: "Calentamiento" }),
+          o("span", { className: "dim small", children: i ? "ocultar" : "ver" }),
+        ],
+      }),
+      i &&
+        o("div", {
+          className: "warmbody",
+          children: t.map((n, s) =>
+            l(
+              "div",
+              {
+                className: "warmrow",
+                children: [
+                  o("span", { className: "grow", children: n.name }),
+                  o("span", {
+                    className: "dim small warmramp",
+                    children: n.ramp
+                      ? n.ramp.map((d) => `${d.w}\xD7${d.r}`).join(" → ")
+                      : `${n.warm} series \xB7 registra peso`,
+                  }),
+                ],
+              },
+              s,
+            ),
+          ),
+        }),
+    ],
+  });
 }
 function ba({ re: e, unit: a }) {
   let [r, i] = x(!1),

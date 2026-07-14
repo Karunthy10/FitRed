@@ -1,6 +1,16 @@
 import { jsx as o, jsxs as l } from "react/jsx-runtime";
 
-var oa = (e) => `${Math.floor(e / 60)}:${String(e % 60).padStart(2, "0")}`,
+// rl = relative time: timestamp (ms) -> "ahora", "hace 3 h", "hace 5 d", ...
+var rl = (ts) => {
+    if (!ts) return "";
+    let s = Math.max(0, (Date.now() - ts) / 1000);
+    if (s < 60) return "ahora";
+    if (s < 3600) return `hace ${Math.floor(s / 60)} min`;
+    if (s < 86400) return `hace ${Math.floor(s / 3600)} h`;
+    if (s < 2592000) return `hace ${Math.floor(s / 86400)} d`;
+    return `hace ${Math.floor(s / 2592000)} mes`;
+  },
+  oa = (e) => `${Math.floor(e / 60)}:${String(e % 60).padStart(2, "0")}`,
   S = ({ children: e, on: a, ...r }) =>
     o("button", { className: "chip" + (a ? " on" : ""), ...r, children: e }),
   W = ({ score: e, mine: a, onVote: r }) =>
@@ -27,4 +37,4 @@ var oa = (e) => `${Math.floor(e / 60)}:${String(e % 60).padStart(2, "0")}`,
       children: ["\u2665\uFE0E ", e.likes],
     });
 
-export { oa, S, W, Ye };
+export { oa, rl, S, W, Ye };

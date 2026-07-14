@@ -328,6 +328,7 @@ textarea:focus {
   font-weight: 700;
   width: auto;
   flex: 1;
+  min-width: 0;
 }
 
 .mini {
@@ -624,4 +625,196 @@ h3 {
 .syncstatus b {
   font-weight: 600;
   font-size: 14px;
+}
+
+/* Etiqueta de tipo de publicación en el feed de comunidad */
+.ptype {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.t-rutinas {
+  background: rgba(255, 59, 47, 0.14);
+  color: var(--rojo);
+}
+.t-ejercicios {
+  background: rgba(255, 122, 69, 0.14);
+  color: var(--brasa);
+}
+.t-tips {
+  background: rgba(255, 179, 36, 0.14);
+  color: var(--ambar);
+}
+.t-progreso {
+  background: rgba(47, 213, 115, 0.14);
+  color: var(--verde);
+}
+.t-alimentacion {
+  background: rgba(120, 170, 255, 0.14);
+  color: #8fb3ff;
+}
+
+/* Control segmentado (ventana temporal tipo Reddit): chips más compactos */
+.seg {
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.seg .chip {
+  padding: 6px 13px;
+  min-height: 34px;
+  font-size: 12px;
+}
+
+/* Entrada escalonada de tarjetas (feed, listas) */
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.pop {
+  animation: pop 0.26s ease both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pop {
+    animation: none;
+  }
+}
+
+/* Tip del coach (cue integrado del ejercicio) */
+.card.coach {
+  border-left: 3px solid var(--ambar);
+}
+.coachlabel {
+  font-family: var(--display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  color: var(--ambar);
+  margin-bottom: 4px;
+}
+.card.coach p {
+  line-height: 1.5;
+}
+
+/* Tips fijables por ejercicio */
+.card.cmt.pinned {
+  border-left: 3px solid var(--ambar);
+}
+.pin {
+  background: none;
+  border: 1px solid var(--humo);
+  border-radius: 999px;
+  color: var(--ceniza);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  min-height: 36px;
+  white-space: nowrap;
+}
+.pin.on {
+  color: var(--ambar);
+  border-color: var(--ambar);
+}
+
+/* Tips recordados durante la sesión de entrenamiento */
+.mytips {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mytip {
+  display: flex;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--tiza);
+  background: rgba(255, 179, 36, 0.08);
+  border-radius: 8px;
+  padding: 6px 9px;
+}
+.mytip::before {
+  content: "★";
+  color: var(--ambar);
+  flex-shrink: 0;
+}
+
+/* Editor de ejercicio dentro de una rutina */
+.editgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--humo);
+}
+.editfull {
+  grid-column: 1 / -1;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.field span {
+  font-size: 11px;
+  color: var(--ceniza);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.field input {
+  margin: 0;
+}
+
+/* Tarjeta de calentamiento al entrar a la sesión */
+.card.warmup {
+  border-left: 3px solid var(--ambar);
+  padding: 0;
+  overflow: hidden;
+}
+.warmhead {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  min-height: 48px;
+}
+.warmhead b {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 16px;
+  color: var(--ambar);
+}
+.warmbody {
+  padding: 0 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.warmrow {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  border-top: 1px solid var(--humo);
+  padding-top: 7px;
+}
+.warmramp {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
 }

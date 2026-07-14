@@ -1,137 +1,154 @@
-import { Fragment as I, jsx as o, jsxs as l } from "react/jsx-runtime";
-import { useState as x } from "react";
-import { S, W } from "./ui.jsx";
+import { useState } from "react";
+import { S, W, rl } from "./ui.jsx";
 import { D, Ae, X, Te, M } from "../data/store.js";
 
-function sa({ openPost: e, goRoutine: a }) {
-  let [r, i] = x(null),
-    [, c] = x(0),
-    [t, n] = x(!1);
-  return l("div", {
-    className: "pad",
-    children: [
-      l("div", {
-        className: "row spread",
-        children: [
-          o("h2", { children: "Comunidad" }),
-          o("button", {
-            className: "btn",
-            onClick: () => n(!0),
-            children: "+ Publicar",
-          }),
-        ],
-      }),
-      l("div", {
-        className: "row wrap",
-        children: [
-          o(S, { on: !r, onClick: () => i(null), children: "Todo" }),
-          D.map(([s, d]) =>
-            o(S, { on: r === s, onClick: () => i(s), children: d }, s),
-          ),
-        ],
-      }),
-      t &&
-        o(na, {
-          done: () => {
-            (n(!1), c((s) => s + 1));
-          },
-        }),
-      Ae(r).map((s) =>
-        o(
-          "div",
-          {
-            className: "card post",
-            onClick: () => e(s.id),
-            children: l("div", {
-              className: "row",
-              children: [
-                o("span", {
-                  onClick: (d) => d.stopPropagation(),
-                  children: o(W, {
-                    score: s.votes,
-                    mine: s.myVote,
-                    onVote: (d) => {
-                      (X(s.id, d), c((u) => u + 1));
-                    },
-                  }),
-                }),
-                l("div", {
-                  className: "grow",
-                  children: [
-                    l("div", {
-                      className: "dim small",
-                      children: [
-                        "@",
-                        M(s.userId),
-                        " \xB7 ",
-                        D.find((d) => d[0] === s.category)?.[1],
-                      ],
-                    }),
-                    o("b", { children: s.title }),
-                    l("div", {
-                      className: "dim small",
-                      children: [
-                        
-                        s.comments.length,
-                        " comentarios ",
-                        s.routineRef && "\xB7 rutina adjunta",
-                      ],
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          },
-          s.id,
-        ),
-      ),
-    ],
-  });
+// Ventanas temporales estilo Reddit ("top de hoy / semana / mes")
+const WINDOWS = [
+  ["todo", "Top", null],
+  ["hoy", "Hoy", 864e5],
+  ["semana", "Semana", 7 * 864e5],
+  ["mes", "Mes", 30 * 864e5],
+];
+
+// Categorías donde escribes texto libre (las rutinas se publican desde la
+// pestaña Rutinas, con la rutina adjunta)
+const COMPOSE_CATS = D.filter(([id]) => id !== "rutinas");
+
+const catLabel = (id) => D.find((d) => d[0] === id)?.[1] || id;
+
+function sa({ openPost }) {
+  const [cat, setCat] = useState(null);
+  const [win, setWin] = useState("todo");
+  const [, force] = useState(0);
+  const [composing, setComposing] = useState(false);
+
+  const since = WINDOWS.find((w) => w[0] === win)?.[2] || null;
+  const posts = Ae(cat, since ? Date.now() - since : null);
+
+  return (
+    <div className="pad">
+      <div className="row spread">
+        <h2>Comunidad</h2>
+        <button className="btn" onClick={() => setComposing(true)}>
+          + Publicar
+        </button>
+      </div>
+
+      <div className="row wrap seg">
+        {WINDOWS.map(([id, label]) => (
+          <S key={id} on={win === id} onClick={() => setWin(id)}>
+            {label}
+          </S>
+        ))}
+      </div>
+
+      <div className="row wrap">
+        <S on={!cat} onClick={() => setCat(null)}>
+          Todo
+        </S>
+        {D.map(([id, label]) => (
+          <S key={id} on={cat === id} onClick={() => setCat(id)}>
+            {label}
+          </S>
+        ))}
+      </div>
+
+      {composing && (
+        <Composer
+          done={() => {
+            setComposing(false);
+            force((s) => s + 1);
+          }}
+        />
+      )}
+
+      {posts.map((post, i) => (
+        <div
+          key={post.id}
+          className="card post pop"
+          style={{ animationDelay: `${Math.min(i, 8) * 28}ms` }}
+          onClick={() => openPost(post.id)}
+        >
+          <div className="row">
+            <span onClick={(e) => e.stopPropagation()}>
+              <W
+                score={post.votes}
+                mine={post.myVote}
+                onVote={(v) => {
+                  X(post.id, v);
+                  force((s) => s + 1);
+                }}
+              />
+            </span>
+            <div className="grow">
+              <div className="row gap" style={{ marginBottom: 2 }}>
+                <span className={"ptype t-" + post.category}>
+                  {catLabel(post.category)}
+                </span>
+                <span className="dim small">
+                  @{M(post.userId)} · {rl(post.at)}
+                </span>
+              </div>
+              <b>{post.title}</b>
+              <div className="dim small">
+                {post.comments.length} comentarios
+                {post.routineRef && " · rutina adjunta"}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {!posts.length && (
+        <div className="card dim">
+          Nada por aquí todavía. Sé el primero en publicar.
+        </div>
+      )}
+    </div>
+  );
 }
-function na({ done: e }) {
-  let [a, r] = x("tips"),
-    [i, c] = x(""),
-    [t, n] = x("");
-  return l("div", {
-    className: "card",
-    children: [
-      o("div", {
-        className: "row wrap",
-        children: D.map(([s, d]) =>
-          o(S, { on: a === s, onClick: () => r(s), children: d }, s),
-        ),
-      }),
-      o("input", {
-        placeholder: "T\xEDtulo",
-        value: i,
-        onChange: (s) => c(s.target.value),
-      }),
-      o("textarea", {
-        placeholder: "Cuenta\u2026",
-        rows: 4,
-        value: t,
-        onChange: (s) => n(s.target.value),
-      }),
-      l("div", {
-        className: "row gap",
-        children: [
-          o("button", {
-            className: "btn",
-            disabled: !i.trim(),
-            onClick: () => {
-              (Te({ category: a, title: i.trim(), body: t.trim() }), e());
-            },
-            children: "Publicar",
-          }),
-          o("button", {
-            className: "btn ghost",
-            onClick: e,
-            children: "Cancelar",
-          }),
-        ],
-      }),
-    ],
-  });
+
+function Composer({ done }) {
+  const [cat, setCat] = useState(COMPOSE_CATS[0][0]);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  return (
+    <div className="card">
+      <div className="row wrap">
+        {COMPOSE_CATS.map(([id, label]) => (
+          <S key={id} on={cat === id} onClick={() => setCat(id)}>
+            {label}
+          </S>
+        ))}
+      </div>
+      <input
+        placeholder="Título"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <textarea
+        placeholder="Cuenta…"
+        rows={4}
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+      />
+      <div className="row gap">
+        <button
+          className="btn"
+          disabled={!title.trim()}
+          onClick={() => {
+            Te({ category: cat, title: title.trim(), body: body.trim() });
+            done();
+          }}
+        >
+          Publicar
+        </button>
+        <button className="btn ghost" onClick={done}>
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export { sa };

@@ -1,216 +1,314 @@
-import { Fragment as I, jsx as o, jsxs as l } from "react/jsx-runtime";
-import { useState as x } from "react";
+import { useState } from "react";
 import { Z, C, j, k } from "../data/store.js";
 
-function ca({ id: e, readOnly: a, goBack: r, goPickExercise: i }) {
-  let [, c] = x(0),
-    t = Z(e);
-  if (!t) return null;
-  let n = (s, d, u) => {
-    let b = d + u;
-    b < 0 || b >= s.length || ([s[d], s[b]] = [s[b], s[d]]);
+// Mueve el elemento en la posición `from` una cantidad `delta` (in-place)
+const move = (arr, from, delta) => {
+  const to = from + delta;
+  if (to < 0 || to >= arr.length) return;
+  [arr[from], arr[to]] = [arr[to], arr[from]];
+};
+
+function ca({ id, readOnly, goBack, goPickExercise }) {
+  const [, force] = useState(0);
+  const [editing, setEditing] = useState(null); // "dayIdx:exIdx"
+  const routine = Z(id);
+  if (!routine) return null;
+  const bump = () => force((s) => s + 1);
+  const edit = (fn) => {
+    k(id, fn);
+    bump();
   };
-  return l("div", {
-    className: "pad",
-    children: [
-      o("button", {
-        className: "back",
-        onClick: r,
-        children: "\u2039 Rutinas",
-      }),
-      a
-        ? o("h2", { children: t.name })
-        : o("input", {
-            className: "titleinput",
-            value: t.name,
-            onChange: (s) => {
-              (k(e, (d) => (d.name = s.target.value)), c((d) => d + 1));
-            },
-          }),
-      o("p", { className: "dim small", children: t.description }),
-      t.days.map((s, d) =>
-        l(
-          "div",
-          {
-            className: "card",
-            children: [
-              l("div", {
-                className: "row spread",
-                children: [
-                  a
-                    ? o("b", { children: s.name })
-                    : o("input", {
-                        className: "dayinput",
-                        value: s.name,
-                        onChange: (u) => {
-                          (k(e, (b) => (b.days[d].name = u.target.value)),
-                            c((b) => b + 1));
-                        },
-                      }),
-                  !a &&
-                    l("div", {
-                      className: "row",
-                      children: [
-                        o("button", {
-                          className: "mini",
-                          onClick: () => {
-                            (k(e, (u) => n(u.days, d, -1)), c((u) => u + 1));
-                          },
-                          children: "\u2191",
-                        }),
-                        o("button", {
-                          className: "mini",
-                          onClick: () => {
-                            (k(e, (u) => n(u.days, d, 1)), c((u) => u + 1));
-                          },
-                          children: "\u2193",
-                        }),
-                        o("button", {
-                          className: "mini danger",
-                          onClick: () => {
-                            confirm("\xBFBorrar d\xEDa?") &&
-                              (k(e, (u) => u.days.splice(d, 1)),
-                              c((u) => u + 1));
-                          },
-                          children: "\u2715",
-                        }),
-                      ],
+
+  return (
+    <div className="pad">
+      <button className="back" onClick={goBack}>
+        ‹ Rutinas
+      </button>
+
+      {readOnly ? (
+        <h2>{routine.name}</h2>
+      ) : (
+        <input
+          className="titleinput"
+          value={routine.name}
+          onChange={(e) => edit((r) => (r.name = e.target.value))}
+        />
+      )}
+      {routine.description && (
+        <p className="dim small">{routine.description}</p>
+      )}
+
+      {routine.days.map((day, di) => (
+        <div key={di} className="card pop">
+          <div className="row spread">
+            {readOnly ? (
+              <b>{day.name}</b>
+            ) : (
+              <input
+                className="dayinput"
+                value={day.name}
+                onChange={(e) =>
+                  edit((r) => (r.days[di].name = e.target.value))
+                }
+              />
+            )}
+            {!readOnly && (
+              <div className="row">
+                <button
+                  className="mini"
+                  aria-label="Subir día"
+                  onClick={() => edit((r) => move(r.days, di, -1))}
+                >
+                  ↑
+                </button>
+                <button
+                  className="mini"
+                  aria-label="Bajar día"
+                  onClick={() => edit((r) => move(r.days, di, 1))}
+                >
+                  ↓
+                </button>
+                <button
+                  className="mini danger"
+                  aria-label="Borrar día"
+                  onClick={() =>
+                    confirm("¿Borrar día?") &&
+                    edit((r) => r.days.splice(di, 1))
+                  }
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+          {day.exercises.map((ex, xi) => {
+            const def = C(ex.exId);
+            const key = di + ":" + xi;
+            const isOpen = editing === key;
+            const tempo = ex.tempo || def?.tempo || "2-0-1";
+            return (
+              <div key={xi} className="exrow col">
+                <div className="row spread">
+                  <div className="grow">
+                    <b>{def?.name || "?"}</b>{" "}
+                    <span className="dim small">▲{j(ex.exId)}</span>
+                    <div className="dim small">
+                      {ex.workingSets}×{ex.repRange} · tempo {tempo} · RIR{" "}
+                      {ex.rir?.easy}→{ex.rir?.hard} ·{" "}
+                      {Math.round(ex.restSeconds / 60)}min · cal.{" "}
+                      {ex.warmupSets}
+                    </div>
+                    {ex.note && <div className="note small">{ex.note}</div>}
+                  </div>
+                  {!readOnly && (
+                    <div className="row">
+                      <button
+                        className="mini"
+                        aria-label="Subir ejercicio"
+                        onClick={() =>
+                          edit((r) => move(r.days[di].exercises, xi, -1))
+                        }
+                      >
+                        ↑
+                      </button>
+                      <button
+                        className="mini"
+                        aria-label="Bajar ejercicio"
+                        onClick={() =>
+                          edit((r) => move(r.days[di].exercises, xi, 1))
+                        }
+                      >
+                        ↓
+                      </button>
+                      <button
+                        className={"mini" + (isOpen ? " on" : "")}
+                        aria-label="Editar ejercicio"
+                        onClick={() => setEditing(isOpen ? null : key)}
+                      >
+                        ✎
+                      </button>
+                      <button
+                        className="mini danger"
+                        aria-label="Borrar ejercicio"
+                        onClick={() =>
+                          edit((r) => r.days[di].exercises.splice(xi, 1))
+                        }
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {isOpen && !readOnly && (
+                  <div className="editgrid">
+                    <NumField
+                      label="Series"
+                      value={ex.workingSets}
+                      onChange={(v) =>
+                        edit((r) => (r.days[di].exercises[xi].workingSets = v))
+                      }
+                    />
+                    <NumField
+                      label="Calentam."
+                      value={ex.warmupSets}
+                      min={0}
+                      onChange={(v) =>
+                        edit((r) => (r.days[di].exercises[xi].warmupSets = v))
+                      }
+                    />
+                    <TxtField
+                      label="Reps"
+                      value={ex.repRange}
+                      onChange={(v) =>
+                        edit((r) => (r.days[di].exercises[xi].repRange = v))
+                      }
+                    />
+                    <TxtField
+                      label="Tempo"
+                      value={tempo}
+                      onChange={(v) =>
+                        edit((r) => (r.days[di].exercises[xi].tempo = v))
+                      }
+                    />
+                    <NumField
+                      label="Descanso (min)"
+                      value={Math.round((ex.restSeconds / 60) * 10) / 10}
+                      step={0.5}
+                      min={0}
+                      onChange={(v) =>
+                        edit(
+                          (r) =>
+                            (r.days[di].exercises[xi].restSeconds = Math.round(
+                              v * 60,
+                            )),
+                        )
+                      }
+                    />
+                    <NumField
+                      label="RIR fácil"
+                      value={ex.rir?.easy ?? 2}
+                      min={0}
+                      onChange={(v) =>
+                        edit((r) => {
+                          r.days[di].exercises[xi].rir = {
+                            ...(r.days[di].exercises[xi].rir || {}),
+                            easy: v,
+                          };
+                        })
+                      }
+                    />
+                    <NumField
+                      label="RIR duro"
+                      value={ex.rir?.hard ?? 1}
+                      min={0}
+                      onChange={(v) =>
+                        edit((r) => {
+                          r.days[di].exercises[xi].rir = {
+                            ...(r.days[di].exercises[xi].rir || {}),
+                            hard: v,
+                          };
+                        })
+                      }
+                    />
+                    <div className="editfull">
+                      <TxtField
+                        label="Nota"
+                        value={ex.note || ""}
+                        onChange={(v) =>
+                          edit((r) => (r.days[di].exercises[xi].note = v))
+                        }
+                      />
+                    </div>
+                    <button
+                      className="btn ghost editfull"
+                      onClick={() =>
+                        goPickExercise((newId) =>
+                          edit(
+                            (r) =>
+                              (r.days[di].exercises[xi].exId = newId),
+                          ),
+                        )
+                      }
+                    >
+                      Cambiar ejercicio
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {!readOnly && (
+            <button
+              className="btn ghost full"
+              onClick={() =>
+                goPickExercise((newId) =>
+                  edit((r) =>
+                    r.days[di].exercises.push({
+                      exId: newId,
+                      warmupSets: 1,
+                      workingSets: 3,
+                      repRange: "8-12",
+                      // Tempo cargado por defecto desde el ejercicio
+                      tempo: C(newId)?.tempo || "2-0-1",
+                      restSeconds: 120,
+                      rir: { easy: 2, hard: 1 },
+                      note: "",
                     }),
-                ],
-              }),
-              s.exercises.map((u, b) => {
-                let y = C(u.exId);
-                return l(
-                  "div",
-                  {
-                    className: "exrow",
-                    children: [
-                      l("div", {
-                        className: "grow",
-                        children: [
-                          o("b", { children: y?.name || "?" }),
-                          " ",
-                          l("span", {
-                            className: "dim small",
-                            children: ["\u25B2", j(u.exId)],
-                          }),
-                          l("div", {
-                            className: "dim small",
-                            children: [
-                              u.workingSets,
-                              "\xD7",
-                              u.repRange,
-                              " \xB7 tempo ",
-                              u.tempo || C(u.exId)?.tempo || "2-0-1",
-                              " \xB7 RIR ",
-                              String(u.rir?.easy),
-                              "\u2192",
-                              String(u.rir?.hard),
-                              " \xB7 ",
-                              Math.round(u.restSeconds / 60),
-                              "min",
-                            ],
-                          }),
-                          u.note &&
-                            l("div", {
-                              className: "note small",
-                              children: [u.note],
-                            }),
-                        ],
-                      }),
-                      !a &&
-                        l("div", {
-                          className: "col",
-                          children: [
-                            o("button", {
-                              className: "mini",
-                              onClick: () =>
-                                i((f) => {
-                                  (k(
-                                    e,
-                                    (v) => (v.days[d].exercises[b].exId = f),
-                                  ),
-                                    c((v) => v + 1));
-                                }),
-                              children: "\u21C4",
-                            }),
-                            o("button", {
-                              className: "mini",
-                              onClick: () => {
-                                let f = prompt(
-                                    "Series efectivas",
-                                    u.workingSets,
-                                  ),
-                                  v = prompt(
-                                    "Rango reps (ej 8-12)",
-                                    u.repRange,
-                                  );
-                                (f &&
-                                  v &&
-                                  k(e, (w) => {
-                                    ((w.days[d].exercises[b].workingSets = +f),
-                                      (w.days[d].exercises[b].repRange = v));
-                                  }),
-                                  c((w) => w + 1));
-                              },
-                              children: "\u270E",
-                            }),
-                            o("button", {
-                              className: "mini danger",
-                              onClick: () => {
-                                (k(e, (f) => f.days[d].exercises.splice(b, 1)),
-                                  c((f) => f + 1));
-                              },
-                              children: "\u2715",
-                            }),
-                          ],
-                        }),
-                    ],
-                  },
-                  b,
-                );
-              }),
-              !a &&
-                o("button", {
-                  className: "btn ghost full",
-                  onClick: () =>
-                    i((u) => {
-                      (k(e, (b) =>
-                        b.days[d].exercises.push({
-                          exId: u,
-                          warmupSets: 1,
-                          workingSets: 3,
-                          repRange: "8-12",
-                          restSeconds: 120,
-                          rir: { easy: 2, hard: 1 },
-                          note: "",
-                        }),
-                      ),
-                        c((b) => b + 1));
-                    }),
-                  children: "+ Agregar ejercicio",
-                }),
-            ],
-          },
-          d,
-        ),
-      ),
-      !a &&
-        o("button", {
-          className: "btn ghost full",
-          onClick: () => {
-            (k(e, (s) =>
-              s.days.push({
-                name: "D\xEDa " + (s.days.length + 1),
+                  ),
+                )
+              }
+            >
+              + Agregar ejercicio
+            </button>
+          )}
+        </div>
+      ))}
+
+      {!readOnly && (
+        <button
+          className="btn ghost full"
+          onClick={() =>
+            edit((r) =>
+              r.days.push({
+                name: "Día " + (r.days.length + 1),
                 exercises: [],
               }),
-            ),
-              c((s) => s + 1));
-          },
-          children: "+ Agregar d\xEDa",
-        }),
-    ],
-  });
+            )
+          }
+        >
+          + Agregar día
+        </button>
+      )}
+    </div>
+  );
+}
+
+function NumField({ label, value, onChange, step = 1, min = 1 }) {
+  return (
+    <label className="field">
+      <span>{label}</span>
+      <input
+        type="number"
+        inputMode="decimal"
+        step={step}
+        min={min}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+      />
+    </label>
+  );
+}
+
+function TxtField({ label, value, onChange }) {
+  return (
+    <label className="field">
+      <span>{label}</span>
+      <input value={value} onChange={(e) => onChange(e.target.value)} />
+    </label>
+  );
 }
 
 export { ca };
