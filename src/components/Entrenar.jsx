@@ -17,6 +17,8 @@ import {
   Me,
   K,
   pinnedTips,
+  usr,
+  meId,
 } from "../data/store.js";
 import { $ as TECH } from "../data/seed.js";
 
@@ -145,6 +147,8 @@ function da({ goRoutines }) {
           </div>
         )}
 
+        <Greeting state={state} />
+
         <div className="hero">
           <span className="dim">RUTINA ACTIVA</span>
           <h1>{routine.name}</h1>
@@ -168,8 +172,44 @@ function da({ goRoutines }) {
           )}
         </div>
 
+        {(() => {
+          const doneIdx = new Set(
+            state.workouts
+              .filter(
+                (wo) =>
+                  wo.routineId === routine.id &&
+                  wo.week === week &&
+                  Object.values(wo.sets).flat().some((s) => s?.done),
+              )
+              .map((wo) => wo.dayIdx),
+          );
+          const next = routine.days.findIndex((_, N) => !doneIdx.has(N));
+          if (next < 0) return null;
+          return (
+            <div className="card todaycta pop">
+              <div className="grow">
+                <span className="ctalabel">Hoy toca</span>
+                <b className="ctaname">{routine.days[next].name}</b>
+                <span className="dim small">
+                  {routine.days[next].exercises.length} ejercicios
+                </span>
+              </div>
+              <button
+                className="btn"
+                onClick={() => {
+                  setDayIdx(next);
+                  startRef.current = Date.now();
+                  setWorkout(Ee(routine.id, next, week));
+                }}
+              >
+                Empezar
+              </button>
+            </div>
+          );
+        })()}
+
         <h3>
-          Elige tu sesión de hoy{" "}
+          O elige otra sesión{" "}
           <span className="dim small">· el orden es tuyo, cámbialo libre</span>
         </h3>
 
@@ -407,6 +447,55 @@ function da({ goRoutines }) {
       )}
     </div>
   );
+}
+
+// Saludo + racha: sesiones de esta semana (calendario) y semanas seguidas
+// entrenando al menos una vez
+function Greeting({ state }) {
+  const name = usr(meId()).username || "";
+  const { thisWeek, streak } = weeklyStats(state.workouts);
+  return (
+    <div className="greeting">
+      <span className="hello">Hola, {name}</span>
+      {(thisWeek > 0 || streak > 1) && (
+        <span className="dim small">
+          {thisWeek} {thisWeek === 1 ? "sesión" : "sesiones"} esta semana
+          {streak > 1 ? ` · racha de ${streak} semanas` : ""}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// Clave de semana calendario (lunes como inicio) para calcular la racha
+function weekKey(d) {
+  const dt = new Date(d + "T12:00:00");
+  const day = (dt.getDay() + 6) % 7; // lunes=0
+  dt.setDate(dt.getDate() - day);
+  return dt.toISOString().slice(0, 10);
+}
+function weeklyStats(workouts) {
+  const weeks = new Set();
+  let thisWeek = 0;
+  const nowKey = weekKey(new Date().toISOString().slice(0, 10));
+  for (const wo of workouts) {
+    if (!Object.values(wo.sets).flat().some((s) => s?.done)) continue;
+    const k = weekKey(wo.date);
+    weeks.add(k);
+    if (k === nowKey) thisWeek++;
+  }
+  // racha: semanas consecutivas hacia atrás desde esta (o la pasada si esta
+  // aún no tiene sesión)
+  let streak = 0;
+  const cursor = new Date();
+  if (!weeks.has(nowKey)) cursor.setDate(cursor.getDate() - 7);
+  for (;;) {
+    const k = weekKey(cursor.toISOString().slice(0, 10));
+    if (!weeks.has(k)) break;
+    streak++;
+    cursor.setDate(cursor.getDate() - 7);
+  }
+  return { thisWeek, streak };
 }
 
 function Stat({ n, label, accent }) {

@@ -1,10 +1,147 @@
 import { useState } from "react";
 import { Hn } from "./ui.jsx";
-import { Re, q, H, je, qe, Ne, Ce, Ie, Pe } from "../data/store.js";
+import {
+  Re,
+  q,
+  H,
+  je,
+  qe,
+  Ne,
+  Ce,
+  Ie,
+  Pe,
+  createRoutineFromTemplate,
+} from "../data/store.js";
+
+// Plantillas para no empezar de cero: [exId, series, reps, descanso(s)]
+const TEMPLATES = [
+  {
+    id: "fullbody",
+    name: "Full Body",
+    meta: "3 días · ideal para empezar",
+    days: [
+      {
+        name: "Full Body A",
+        exercises: [
+          ["squat", 3, "6-8", 180],
+          ["bench", 3, "6-8", 180],
+          ["bb-row", 3, "8-10", 150],
+          ["lat-raise", 3, "12-15", 90],
+          ["leg-raise", 3, "10-15", 60],
+        ],
+      },
+      {
+        name: "Full Body B",
+        exercises: [
+          ["deadlift", 3, "5-8", 210],
+          ["ohp", 3, "6-8", 180],
+          ["lat-pulldown", 3, "8-10", 150],
+          ["leg-press", 3, "10-12", 150],
+          ["ez-curl", 3, "10-12", 90],
+        ],
+      },
+      {
+        name: "Full Body C",
+        exercises: [
+          ["hack", 3, "8-10", 180],
+          ["incline-db", 3, "8-10", 150],
+          ["cable-row", 3, "10-12", 120],
+          ["pushdown", 3, "10-12", 90],
+          ["calf-stand", 3, "12-15", 75],
+        ],
+      },
+    ],
+  },
+  {
+    id: "upperlower",
+    name: "Upper / Lower",
+    meta: "4 días · el clásico que funciona",
+    days: [
+      {
+        name: "Upper A",
+        exercises: [
+          ["bench", 4, "6-8", 180],
+          ["bb-row", 4, "6-8", 180],
+          ["ohp", 3, "8-10", 150],
+          ["lat-pulldown", 3, "8-10", 150],
+          ["lat-raise", 3, "12-15", 90],
+        ],
+      },
+      {
+        name: "Lower A",
+        exercises: [
+          ["squat", 4, "5-8", 210],
+          ["rdl", 3, "8-10", 180],
+          ["leg-press", 3, "10-12", 150],
+          ["leg-curl", 3, "10-12", 90],
+          ["calf-stand", 4, "12-15", 75],
+        ],
+      },
+      {
+        name: "Upper B",
+        exercises: [
+          ["incline-db", 4, "8-10", 150],
+          ["cable-row", 4, "8-10", 150],
+          ["db-shoulder", 3, "8-10", 150],
+          ["preacher", 3, "10-12", 90],
+          ["pushdown", 3, "10-12", 90],
+        ],
+      },
+      {
+        name: "Lower B",
+        exercises: [
+          ["hack", 4, "8-10", 180],
+          ["hip-thrust", 3, "8-10", 150],
+          ["leg-ext", 3, "12-15", 90],
+          ["leg-curl", 3, "10-12", 90],
+          ["calf-seat", 4, "12-15", 75],
+        ],
+      },
+    ],
+  },
+  {
+    id: "ppl",
+    name: "Push / Pull / Legs",
+    meta: "3 días · rota y repite",
+    days: [
+      {
+        name: "Push",
+        exercises: [
+          ["bench", 4, "6-8", 180],
+          ["ohp", 3, "8-10", 150],
+          ["incline-db", 3, "8-10", 150],
+          ["lat-raise", 3, "12-15", 90],
+          ["pushdown", 3, "10-12", 90],
+        ],
+      },
+      {
+        name: "Pull",
+        exercises: [
+          ["pullup", 4, "6-10", 180],
+          ["bb-row", 3, "8-10", 150],
+          ["face-pull", 3, "15-20", 75],
+          ["preacher", 3, "10-12", 90],
+          ["hammer", 3, "10-12", 90],
+        ],
+      },
+      {
+        name: "Legs",
+        exercises: [
+          ["squat", 4, "5-8", 210],
+          ["rdl", 3, "8-10", 180],
+          ["leg-press", 3, "10-12", 150],
+          ["leg-curl", 3, "10-12", 90],
+          ["calf-stand", 4, "12-15", 75],
+        ],
+      },
+    ],
+  },
+];
 
 function la({ goEdit, force9, openProfile }) {
   const [, force] = useState(0);
   const [publishing, setPublishing] = useState(null); // routineId
+  const [choosing, setChoosing] = useState(false);
   H();
   const mine = Re();
   const st = q();
@@ -14,14 +151,58 @@ function la({ goEdit, force9, openProfile }) {
     <div className="pad">
       <div className="row spread">
         <h2>Mis rutinas</h2>
-        <button className="btn" onClick={() => goEdit(je("Mi rutina"))}>
+        <button className="btn" onClick={() => setChoosing((c) => !c)}>
           + Crear
         </button>
       </div>
 
+      {choosing && (
+        <div className="card pop">
+          <b>¿Cómo quieres empezar?</b>
+          <div className="dim small" style={{ margin: "2px 0 8px" }}>
+            Elige una plantilla probada y ajústala a tu gusto, o arma la tuya
+            desde cero.
+          </div>
+          {TEMPLATES.map((t) => (
+            <button
+              key={t.id}
+              className="tplrow"
+              onClick={() => {
+                const id = createRoutineFromTemplate(t.name, t.days);
+                setChoosing(false);
+                force9();
+                goEdit(id);
+              }}
+            >
+              <span className="grow">
+                <b>{t.name}</b>
+                <span className="dim small tplmeta">{t.meta}</span>
+              </span>
+              <span className="dim">›</span>
+            </button>
+          ))}
+          <button
+            className="tplrow"
+            onClick={() => {
+              setChoosing(false);
+              goEdit(je("Mi rutina"));
+            }}
+          >
+            <span className="grow">
+              <b>Empezar de cero</b>
+              <span className="dim small tplmeta">
+                rutina vacía · tú decides todo
+              </span>
+            </span>
+            <span className="dim">›</span>
+          </button>
+        </div>
+      )}
+
       {mine.length === 0 && (
         <div className="card dim">
-          Aún no tienes rutinas. Crea una o copia la de otro usuario.
+          Aún no tienes rutinas. Crea una con plantilla o copia la de otro
+          usuario aquí abajo.
         </div>
       )}
 

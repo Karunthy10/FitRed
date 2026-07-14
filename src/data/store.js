@@ -235,6 +235,41 @@ function je(e) {
   return a;
 }
 
+// createRoutineFromTemplate = crea una rutina completa desde una plantilla:
+// days = [{ name, exercises: [[exId, sets, repRange, restSeconds], ...] }]
+// El tempo se hereda del ejercicio; todo queda editable en el editor.
+function createRoutineFromTemplate(name, days, weeks = 8) {
+  let a = "rt-" + Date.now().toString(36);
+  p.routines[a] = {
+    id: a,
+    ownerId: p.me,
+    name,
+    description: "",
+    isPublic: !1,
+    weeks,
+    easyWeeks: [1, 2],
+    days: days.map((d) => ({
+      name: d.name,
+      exercises: d.exercises.map(([exId, sets, reps, rest]) => ({
+        exId,
+        warmupSets: sets >= 4 ? 2 : 1,
+        workingSets: sets,
+        repRange: reps,
+        tempo: p.exercises[exId]?.tempo || "2-0-1",
+        restSeconds: rest,
+        rir: { easy: 2, hard: 1 },
+        note: "",
+      })),
+    })),
+  };
+  p.myRoutines.push(a);
+  p.activeRoutine || (p.activeRoutine = a);
+  h();
+  markLocalWrite();
+  syncCreateRoutine(p.routines[a]);
+  return a;
+}
+
 // k = updateRoutine: mutador genérico de una rutina propia (lo usa
 // RoutineEditor.jsx para renombrar, reordenar y agregar/quitar días o
 // ejercicios: recibe una función que muta la rutina in-place)
@@ -669,5 +704,6 @@ export {
   qe, Me, Ee, ze, O, Q, K, Be, D, Ae, V, X, Te, Le, De, M, H, Ve, Oe, He,
   We, Ue, Ge, ee, ae, $e, Fe, pinTip, pinnedTips,
   usr, meId, updateProfile, requestVerify, setRoutinePrice,
-  toggleFollow, isFollowing, followerCount, followingCount
+  toggleFollow, isFollowing, followerCount, followingCount,
+  createRoutineFromTemplate
 };

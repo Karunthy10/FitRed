@@ -1,219 +1,228 @@
-import { Fragment as I, jsx as o, jsxs as l } from "react/jsx-runtime";
-import { useState as x } from "react";
-import { oe } from "./BodyMap.jsx";
+import { useState } from "react";
+import { oe as BodyMap } from "./BodyMap.jsx";
 import { S, W } from "./ui.jsx";
 import { F, ye, j, J, _, we, Y } from "../data/store.js";
 
-function _e({ goForum: e, pickMode: a, onPick: r }) {
-  let [i, c] = x("front"),
-    [t, n] = x(null),
-    [, s] = x(0),
-    d = t ? ye(t) : [];
-  return l("div", {
-    className: "pad",
-    children: [
-      !t &&
-        l(I, {
-          children: [
-            o("h2", { children: "\xBFQu\xE9 m\xFAsculo entrenas hoy?" }),
-            o("p", { className: "dim", children: "Toca una zona del cuerpo" }),
-            l("div", {
-              className: "row center",
-              children: [
-                o(S, {
-                  on: i === "front",
-                  onClick: () => c("front"),
-                  children: "Frente",
-                }),
-                o(S, {
-                  on: i === "back",
-                  onClick: () => c("back"),
-                  children: "Espalda",
-                }),
-              ],
-            }),
-            o(oe, { side: i, selected: t, onSelect: n }),
-            o("div", {
-              className: "row wrap center",
-              children: F().length
-                ? [
-                    "Pecho",
-                    "Hombros",
-                    "Espalda",
-                    "B\xEDceps",
-                    "Tr\xEDceps",
-                    "Cu\xE1driceps",
-                    "Isquios",
-                    "Gl\xFAteos",
-                    "Gemelos",
-                    "Abdomen",
-                    "Trapecio",
-                    "Antebrazo",
-                  ].map((u) => o(S, { onClick: () => n(u), children: u }, u))
-                : null,
-            }),
-          ],
-        }),
-      t &&
-        l(I, {
-          children: [
-            o("button", {
-              className: "back",
-              onClick: () => n(null),
-              children: "\u2039 Cuerpo",
-            }),
-            l("h2", {
-              children: [
-                t,
-                " ",
-                l("span", {
-                  className: "dim small",
-                  children: [
-                    "\xB7 ",
-                    d.length,
-                    " ejercicios, mejor rateados primero",
-                  ],
-                }),
-              ],
-            }),
-            d.map((u, b) =>
-              l(
-                "div",
-                {
-                  className: "card",
-                  children: [
-                    l("div", {
-                      className: "row spread",
-                      children: [
-                        l("div", {
-                          children: [
-                            l("b", {
-                              className: "rank",
-                              children: ["#", b + 1],
-                            }),
-                            " ",
-                            o("b", { children: u.name }),
-                            l("div", {
-                              className: "dim small",
-                              children: [
-                                u.equipment,
-                                " \xB7 ",
-                                u.muscles.join(", "),
-                              ],
-                            }),
-                          ],
-                        }),
-                        o(W, {
-                          score: j(u.id),
-                          mine: J(u.id),
-                          onVote: (y) => {
-                            (_(u.id, y), s((f) => f + 1));
-                          },
-                        }),
-                      ],
-                    }),
-                    l("div", {
-                      className: "row gap",
-                      children: [
-                        o("a", {
-                          className: "btn ghost",
-                          href: u.videoUrl,
-                          target: "_blank",
-                          rel: "noreferrer",
-                          children: "T\xE9cnica \u203A",
-                        }),
-                        l("button", {
-                          className: "btn ghost",
-                          onClick: () => e(u.id),
-                          children: ["Foro (", Y(u.id).length, ")"],
-                        }),
-                        a &&
-                          o("button", {
-                            className: "btn",
-                            onClick: () => r(u.id),
-                            children: "Elegir",
-                          }),
-                      ],
-                    }),
-                  ],
-                },
-                u.id,
-              ),
-            ),
-            o(ra, { muscle: t, onAdded: () => s((u) => u + 1) }),
-          ],
-        }),
-    ],
-  });
+const MUSCLES = [
+  "Pecho",
+  "Hombros",
+  "Espalda",
+  "Bíceps",
+  "Tríceps",
+  "Cuádriceps",
+  "Isquios",
+  "Glúteos",
+  "Gemelos",
+  "Abdomen",
+  "Trapecio",
+  "Antebrazo",
+];
+
+// Normaliza para buscar sin acentos ni mayúsculas ("dominadas" ≈ "Dominádas")
+const norm = (s) =>
+  (s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+function _e({ goForum, pickMode, onPick }) {
+  const [side, setSide] = useState("front");
+  const [muscle, setMuscle] = useState(null);
+  const [query, setQuery] = useState("");
+  const [, force] = useState(0);
+  const bump = () => force((s) => s + 1);
+
+  const searching = query.trim().length > 0;
+  const results = searching
+    ? F()
+        .filter(
+          (ex) =>
+            norm(ex.name).includes(norm(query)) ||
+            norm(ex.primaryMuscle).includes(norm(query)),
+        )
+        .sort((a, b) => j(b.id) - j(a.id))
+        .slice(0, 30)
+    : muscle
+      ? ye(muscle)
+      : [];
+
+  // ----- Vista de exploración (mapa + búsqueda) -----
+  if (!muscle && !searching)
+    return (
+      <div className="pad">
+        <h2>¿Qué músculo entrenas hoy?</h2>
+        <input
+          className="searchbox"
+          placeholder="Buscar ejercicio por nombre…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <p className="dim">O toca una zona del cuerpo</p>
+        <div className="row center">
+          <S on={side === "front"} onClick={() => setSide("front")}>
+            Frente
+          </S>
+          <S on={side === "back"} onClick={() => setSide("back")}>
+            Espalda
+          </S>
+        </div>
+        <BodyMap side={side} selected={muscle} onSelect={setMuscle} />
+        <div className="row wrap center">
+          {F().length
+            ? MUSCLES.map((m) => (
+                <S key={m} onClick={() => setMuscle(m)}>
+                  {m}
+                </S>
+              ))
+            : null}
+        </div>
+      </div>
+    );
+
+  // ----- Resultados (búsqueda o músculo) -----
+  return (
+    <div className="pad">
+      {searching ? (
+        <>
+          <input
+            className="searchbox"
+            autoFocus
+            placeholder="Buscar ejercicio por nombre…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <h2>
+            Resultados{" "}
+            <span className="dim small">· {results.length} ejercicios</span>
+          </h2>
+        </>
+      ) : (
+        <>
+          <button className="back" onClick={() => setMuscle(null)}>
+            ‹ Cuerpo
+          </button>
+          <h2>
+            {muscle}{" "}
+            <span className="dim small">
+              · {results.length} ejercicios, mejor rateados primero
+            </span>
+          </h2>
+        </>
+      )}
+
+      {results.map((ex, i) => (
+        <div key={ex.id} className="card pop" style={{ animationDelay: `${Math.min(i, 8) * 24}ms` }}>
+          <div className="row spread">
+            <div>
+              <b className="rank">#{i + 1}</b> <b>{ex.name}</b>
+              <div className="dim small">
+                {ex.equipment} · {ex.muscles.join(", ")}
+              </div>
+            </div>
+            <W
+              score={j(ex.id)}
+              mine={J(ex.id)}
+              onVote={(v) => {
+                _(ex.id, v);
+                bump();
+              }}
+            />
+          </div>
+          <div className="row gap">
+            <a
+              className="btn ghost"
+              href={ex.videoUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Técnica ›
+            </a>
+            <button className="btn ghost" onClick={() => goForum(ex.id)}>
+              Tips ({Y(ex.id).length})
+            </button>
+            {pickMode && (
+              <button className="btn" onClick={() => onPick(ex.id)}>
+                Elegir
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+
+      {searching && !results.length && (
+        <div className="card dim">
+          Sin resultados para "{query}". Prueba con otro nombre o explora por
+          músculo.
+        </div>
+      )}
+
+      {!searching && muscle && (
+        <AddExercise muscle={muscle} onAdded={bump} />
+      )}
+    </div>
+  );
 }
-function ra({ muscle: e, onAdded: a }) {
-  let [r, i] = x(!1),
-    [c, t] = x(""),
-    [n, s] = x("Barra"),
-    [d, u] = x("");
-  return r
-    ? l("div", {
-        className: "card",
-        children: [
-          o("input", {
-            placeholder: "Nombre del ejercicio",
-            value: c,
-            onChange: (b) => t(b.target.value),
-          }),
-          o("div", {
-            className: "row wrap",
-            children: [
-              "Barra",
-              "Mancuernas",
-              "M\xE1quina",
-              "Polea",
-              "Peso corporal",
-            ].map((b) =>
-              o(S, { on: n === b, onClick: () => s(b), children: b }, b),
-            ),
-          }),
-          o("input", {
-            placeholder: "Link de video (YouTube) \u2014 opcional",
-            value: d,
-            onChange: (b) => u(b.target.value),
-          }),
-          l("div", {
-            className: "row gap",
-            children: [
-              o("button", {
-                className: "btn",
-                disabled: !c.trim(),
-                onClick: () => {
-                  (we({
-                    name: c.trim(),
-                    primaryMuscle: e,
-                    muscles: [],
-                    equipment: n,
-                    videoUrl:
-                      d ||
-                      "https://www.youtube.com/results?search_query=" +
-                        encodeURIComponent(c + " t\xE9cnica"),
-                  }),
-                    i(!1),
-                    t(""),
-                    a());
-                },
-                children: "Publicar",
-              }),
-              o("button", {
-                className: "btn ghost",
-                onClick: () => i(!1),
-                children: "Cancelar",
-              }),
-            ],
-          }),
-        ],
-      })
-    : l("button", {
-        className: "btn ghost full",
-        onClick: () => i(!0),
-        children: ["+ Dar de alta un ejercicio de ", e],
-      });
+
+function AddExercise({ muscle, onAdded }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [equipment, setEquipment] = useState("Barra");
+  const [video, setVideo] = useState("");
+  if (!open)
+    return (
+      <button className="btn ghost full" onClick={() => setOpen(true)}>
+        + Dar de alta un ejercicio de {muscle}
+      </button>
+    );
+  return (
+    <div className="card">
+      <input
+        placeholder="Nombre del ejercicio"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <div className="row wrap">
+        {["Barra", "Mancuernas", "Máquina", "Polea", "Peso corporal"].map(
+          (eq) => (
+            <S key={eq} on={equipment === eq} onClick={() => setEquipment(eq)}>
+              {eq}
+            </S>
+          ),
+        )}
+      </div>
+      <input
+        placeholder="Link de video (YouTube) — opcional"
+        value={video}
+        onChange={(e) => setVideo(e.target.value)}
+      />
+      <div className="row gap">
+        <button
+          className="btn"
+          disabled={!name.trim()}
+          onClick={() => {
+            we({
+              name: name.trim(),
+              primaryMuscle: muscle,
+              muscles: [],
+              equipment,
+              videoUrl:
+                video ||
+                "https://www.youtube.com/results?search_query=" +
+                  encodeURIComponent(name + " técnica"),
+            });
+            setOpen(false);
+            setName("");
+            onAdded();
+          }}
+        >
+          Publicar
+        </button>
+        <button className="btn ghost" onClick={() => setOpen(false)}>
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export { _e };
