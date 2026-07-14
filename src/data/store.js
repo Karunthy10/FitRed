@@ -464,6 +464,35 @@ function requestVerify() {
   markLocalWrite();
 }
 
+// toggleFollow = seguir/dejar de seguir a un usuario. El grafo de follow del
+// usuario actual vive en users[me].following (local + snapshot). Los conteos
+// globales reales necesitarían una tabla backend; aquí se combinan con los
+// conteos semilla de las cuentas demo.
+function toggleFollow(id) {
+  if (id === p.me) return;
+  let me = p.users[p.me] || (p.users[p.me] = { id: p.me, username: p.me });
+  me.following ||= [];
+  me.following = me.following.includes(id)
+    ? me.following.filter((x) => x !== id)
+    : [...me.following, id];
+  h();
+  markLocalWrite();
+}
+
+// isFollowing = ¿el usuario actual sigue a id?
+var isFollowing = (id) => !!p.users[p.me]?.following?.includes(id);
+
+// followerCount = seguidores de un usuario (semilla + 1 si yo lo sigo)
+var followerCount = (id) =>
+  (usr(id).followers || 0) + (id !== p.me && isFollowing(id) ? 1 : 0);
+
+// followingCount = a cuántos sigue: para mí es mi lista real; para otros, su
+// conteo semilla
+var followingCount = (id) =>
+  id === p.me
+    ? (p.users[p.me]?.following || []).length
+    : usr(id).followingCount || 0;
+
 // setRoutinePrice = precio de venta de una rutina propia (0/undefined = gratis)
 function setRoutinePrice(routineId, price) {
   let r = p.routines[routineId];
@@ -639,5 +668,6 @@ export {
   q, h, ve, F, C, j, J, ye, _, we, Y, ke, Se, Z, Ne, Re, Ce, je, k, Ie, Pe,
   qe, Me, Ee, ze, O, Q, K, Be, D, Ae, V, X, Te, Le, De, M, H, Ve, Oe, He,
   We, Ue, Ge, ee, ae, $e, Fe, pinTip, pinnedTips,
-  usr, meId, updateProfile, requestVerify, setRoutinePrice
+  usr, meId, updateProfile, requestVerify, setRoutinePrice,
+  toggleFollow, isFollowing, followerCount, followingCount
 };

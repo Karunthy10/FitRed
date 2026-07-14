@@ -92,7 +92,18 @@ function ca({ id, readOnly, goBack, goPickExercise }) {
                 <div className="row spread">
                   <div className="grow">
                     <b>{def?.name || "?"}</b>{" "}
-                    <span className="dim small">▲{j(ex.exId)}</span>
+                    <span className="dim small">▲{j(ex.exId)}</span>{" "}
+                    {def?.videoUrl && (
+                      <a
+                        className="exvid"
+                        href={def.videoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        ▶ Técnica
+                      </a>
+                    )}
                     <div className="dim small">
                       {ex.workingSets}×{ex.repRange} · tempo {tempo} · RIR{" "}
                       {ex.rir?.easy}→{ex.rir?.hard} ·{" "}

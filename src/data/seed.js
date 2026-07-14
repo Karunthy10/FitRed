@@ -164,6 +164,8 @@ var Ke = (e) =>
       verified: !1,
       yearsTraining: 6,
       age: 27,
+      followers: 128,
+      following: ["demo-luis", "demo-ana"],
     },
     {
       id: "demo-ana",
@@ -173,6 +175,8 @@ var Ke = (e) =>
       verified: !0,
       yearsTraining: 9,
       age: 31,
+      followers: 5400,
+      followingCount: 210,
     },
     {
       id: "demo-luis",
@@ -182,6 +186,8 @@ var Ke = (e) =>
       verified: !0,
       yearsTraining: 12,
       age: 34,
+      followers: 8600,
+      followingCount: 87,
     },
     {
       id: "demo-caro",
@@ -191,6 +197,8 @@ var Ke = (e) =>
       verified: !1,
       yearsTraining: 5,
       age: 26,
+      followers: 320,
+      followingCount: 140,
     },
   ],
   pe = {

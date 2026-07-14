@@ -147,9 +147,22 @@ function da({ goRoutines: e }) {
                 className: "row spread",
                 children: [
                   o("b", { children: E?.name }),
-                  l("span", {
-                    className: "dim small",
-                    children: ["\u25B2", j(m.exId)],
+                  l("div", {
+                    className: "row gap",
+                    children: [
+                      E?.videoUrl &&
+                        o("a", {
+                          className: "exvid",
+                          href: E.videoUrl,
+                          target: "_blank",
+                          rel: "noreferrer",
+                          children: "\u25B6 T\u00E9cnica",
+                        }),
+                      l("span", {
+                        className: "dim small",
+                        children: ["\u25B2", j(m.exId)],
+                      }),
+                    ],
                   }),
                 ],
               }),

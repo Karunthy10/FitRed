@@ -7,9 +7,17 @@ import {
   requestVerify,
   Ne,
   Ae,
+  toggleFollow,
+  isFollowing,
+  followerCount,
+  followingCount,
 } from "../data/store.js";
 
 const ROLES = ["Atleta", "Entrenador", "Influencer", "Nutriólogo", "Médico"];
+
+// Formatea conteos grandes: 8600 -> "8.6k"
+const fmtk = (n) =>
+  n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
 
 // Vista de perfil. Si es el perfil propio, es editable (rol, años
 // entrenando, edad, bio) y puede solicitar verificación.
@@ -39,7 +47,27 @@ function pf({ userId, goBack, openRoutine, openPost }) {
             {u.yearsTraining != null && u.age != null && " · "}
             {u.age != null && `${u.age} años`}
           </div>
+          <div className="followrow">
+            <span>
+              <b>{fmtk(followerCount(userId))}</b> Seguidores
+            </span>
+            <span>
+              <b>{fmtk(followingCount(userId))}</b> Siguiendo
+            </span>
+          </div>
           {u.bio && <p className="pbio">{u.bio}</p>}
+          {!mine && (
+            <button
+              className={"btn" + (isFollowing(userId) ? " ghost" : "")}
+              style={{ marginTop: 10 }}
+              onClick={() => {
+                toggleFollow(userId);
+                force((s) => s + 1);
+              }}
+            >
+              {isFollowing(userId) ? "Siguiendo ✓" : "Seguir"}
+            </button>
+          )}
         </div>
       </div>
 
