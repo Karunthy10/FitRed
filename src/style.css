@@ -373,7 +373,7 @@ textarea:focus {
 /* Fila de serie: los números son el protagonista */
 .setrow {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   margin-top: 10px;
 }
@@ -382,10 +382,62 @@ textarea:focus {
   text-align: center;
   font-family: var(--mono);
   font-weight: 600;
-  font-size: 17px;
+  font-size: 16px;
   font-variant-numeric: tabular-nums;
   height: 48px;
 }
+
+/* Stepper +/- para ajustar peso y reps sin teclado */
+.stepper {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 3px;
+}
+.stepper input {
+  flex: 1;
+  min-width: 0;
+  padding: 0 2px;
+}
+.stepbtn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--acero);
+  border: 1px solid var(--humo);
+  color: var(--tiza);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Sustituir ejercicio en la sesión */
+.swapbtn {
+  margin-top: 8px;
+  color: var(--ceniza);
+}
+.swaplist {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.swapopt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  border: 1px solid var(--humo);
+  border-radius: 10px;
+  background: var(--carbon);
+  min-height: 44px;
+  color: var(--tiza);
+}
+
 .setn {
   min-width: 24px;
   text-align: center;
@@ -1039,6 +1091,122 @@ h3 {
   text-transform: uppercase;
   font-size: 24px;
   line-height: 1.05;
+}
+
+/* Interruptor tipo switch */
+.togglerow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 0;
+  border-top: 1px solid var(--humo);
+  margin-top: 8px;
+}
+.togglerow b {
+  font-weight: 600;
+}
+.switch {
+  flex-shrink: 0;
+  width: 46px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--humo);
+  position: relative;
+  transition: background 0.15s ease;
+}
+.switch.on {
+  background: var(--rojo);
+}
+.switch .knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+.switch.on .knob {
+  transform: translateX(18px);
+}
+
+/* Fotos de progreso */
+.comparegrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.comparegrid figure {
+  margin: 0;
+}
+.comparegrid img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--humo);
+}
+.comparegrid figcaption {
+  margin-top: 3px;
+  text-align: center;
+}
+.photogrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.photothumb {
+  position: relative;
+}
+.photothumb img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--humo);
+  cursor: pointer;
+}
+.photodel {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(11, 11, 13, 0.7);
+  color: #fff;
+  font-size: 12px;
+  min-height: 24px;
+}
+.photodate {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  font-size: 10px;
+  font-family: var(--mono);
+  background: rgba(11, 11, 13, 0.7);
+  padding: 1px 5px;
+  border-radius: 5px;
+}
+.photozoom {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 20px;
+}
+.photozoom img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
 }
 
 /* Handle de usuario + insignia de verificado */

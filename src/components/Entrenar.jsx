@@ -4,7 +4,6 @@ import {
   q,
   H,
   Z,
-  Ee,
   C,
   Q,
   Be,
@@ -16,9 +15,14 @@ import {
   j,
   Me,
   K,
+  ye,
   pinnedTips,
   usr,
   meId,
+  startOrResume,
+  finishWorkout,
+  resumable,
+  pref,
 } from "../data/store.js";
 import { $ as TECH } from "../data/seed.js";
 
@@ -45,6 +49,8 @@ function da({ goRoutines }) {
   const [summary, setSummary] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
   const [welcomed, setWelcomed] = useState(dismissedWelcome());
+  const [subs, setSubs] = useState({}); // sustituciones de esta sesión: idx -> exId
+  const [picking, setPicking] = useState(null); // idx del ejercicio a sustituir
   const timerRef = useRef(null);
   const audioRef = useRef(null);
   const startRef = useRef(0);
@@ -52,7 +58,7 @@ function da({ goRoutines }) {
   useEffect(() => {
     if (rest > 0) {
       timerRef.current = setTimeout(() => {
-        if (rest === 1) beep(audioRef);
+        if (rest === 1) restDone(audioRef);
         setRest((s) => s - 1);
       }, 1000);
     }
@@ -77,11 +83,20 @@ function da({ goRoutines }) {
   const week = state.activeWeek;
   const easy = (routine.easyWeeks || []).includes(week);
 
+  const openDay = (N) => {
+    setDayIdx(N);
+    setSubs({});
+    startRef.current = Date.now();
+    setWorkout(startOrResume(routine.id, N, week));
+  };
+
   const exitSession = () => {
+    if (workout) finishWorkout(workout.id);
     setWorkout(null);
     setDayIdx(null);
     setRest(0);
     setSummary(null);
+    setSubs({});
     bump();
   };
 
@@ -173,6 +188,21 @@ function da({ goRoutines }) {
         </div>
 
         {(() => {
+          const resume = resumable(routine.id, week);
+          if (resume) {
+            return (
+              <div className="card todaycta pop">
+                <div className="grow">
+                  <span className="ctalabel">Continuar</span>
+                  <b className="ctaname">{resume.dayName}</b>
+                  <span className="dim small">tienes una sesión en curso</span>
+                </div>
+                <button className="btn" onClick={() => openDay(resume.dayIdx)}>
+                  Reanudar
+                </button>
+              </div>
+            );
+          }
           const doneIdx = new Set(
             state.workouts
               .filter(
@@ -194,14 +224,7 @@ function da({ goRoutines }) {
                   {routine.days[next].exercises.length} ejercicios
                 </span>
               </div>
-              <button
-                className="btn"
-                onClick={() => {
-                  setDayIdx(next);
-                  startRef.current = Date.now();
-                  setWorkout(Ee(routine.id, next, week));
-                }}
-              >
+              <button className="btn" onClick={() => openDay(next)}>
                 Empezar
               </button>
             </div>
@@ -226,11 +249,7 @@ function da({ goRoutines }) {
               key={N}
               className={"card day pop" + (done ? " done" : "")}
               style={{ animationDelay: `${Math.min(N, 8) * 30}ms` }}
-              onClick={() => {
-                setDayIdx(N);
-                startRef.current = Date.now();
-                setWorkout(Ee(routine.id, N, week));
-              }}
+              onClick={() => openDay(N)}
             >
               <div className="row spread">
                 <b>{day.name}</b>
@@ -285,18 +304,22 @@ function da({ goRoutines }) {
 
       <WarmupCard day={day} workout={workout} unit={state.unit} />
 
-      {day.exercises.map((ex, N) => {
-        const def = C(ex.exId);
-        const last = Q(ex.exId, workout.id);
-        const pr = Be(ex.exId);
-        const prog = Ue(ex, ex.exId, workout.id);
+      {day.exercises.map((ex0, N) => {
+        // Ejercicio efectivo: el sustituto de esta sesión si lo hay
+        const exId = subs[N] || ex0.exId;
+        const ex = { ...ex0, exId };
+        const def = C(exId);
+        const last = Q(exId, workout.id);
+        const pr = Be(exId);
+        const prog = Ue(ex, exId, workout.id);
         const isTech = (routine.techWeeks || []).includes(week) && ex.technique;
-        const tips = pinnedTips(ex.exId);
+        const tips = pinnedTips(exId);
         const setCount = Math.max(
           ex.workingSets,
-          workout.sets[ex.exId]?.length || 0,
+          workout.sets[exId]?.length || 0,
         );
         const hasLast = last && last.some((s) => s?.w && s?.r);
+        const weightStep = state.unit === "lb" ? 5 : 2.5;
         return (
           <div key={N} className="card">
             <div className="row spread">
@@ -312,7 +335,7 @@ function da({ goRoutines }) {
                     ▶ Técnica
                   </a>
                 )}
-                <span className="dim small">▲{j(ex.exId)}</span>
+                <span className="dim small">▲{j(exId)}</span>
               </div>
             </div>
             <div className="dim small">
@@ -321,6 +344,50 @@ function da({ goRoutines }) {
               {Math.round(ex.restSeconds / 60)}min{" "}
               {pr ? `· PR ${pr}${state.unit} e1RM` : ""}
             </div>
+
+            <button
+              className="mini swapbtn"
+              onClick={() => setPicking(picking === N ? null : N)}
+            >
+              ⇄ Cambiar ejercicio
+            </button>
+            {picking === N && (
+              <div className="swaplist">
+                {ye(def?.primaryMuscle)
+                  .filter((alt) => alt.id !== exId)
+                  .slice(0, 6)
+                  .map((alt) => (
+                    <button
+                      key={alt.id}
+                      className="swapopt"
+                      onClick={() => {
+                        setSubs((s) => ({ ...s, [N]: alt.id }));
+                        setPicking(null);
+                        bump();
+                      }}
+                    >
+                      <span className="grow">{alt.name}</span>
+                      <span className="dim small">▲{j(alt.id)}</span>
+                    </button>
+                  ))}
+                {subs[N] && (
+                  <button
+                    className="swapopt"
+                    onClick={() => {
+                      setSubs((s) => {
+                        const c = { ...s };
+                        delete c[N];
+                        return c;
+                      });
+                      setPicking(null);
+                      bump();
+                    }}
+                  >
+                    <span className="grow dim">Volver al original</span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {isTech && (
               <div className="techband">
@@ -371,31 +438,33 @@ function da({ goRoutines }) {
                     {R + 1}
                     <em className="rirn">R{We(ex, easy, R)}</em>
                   </span>
-                  <input
-                    type="number"
-                    inputMode="decimal"
+                  <Stepper
+                    field="w"
+                    value={cur.w}
+                    base={prev?.w}
+                    step={weightStep}
                     placeholder={prev?.w ?? "kg"}
-                    value={cur.w ?? ""}
-                    onChange={(e) => {
-                      O(workout.id, ex.exId, R, { w: e.target.value });
+                    onSet={(v) => {
+                      O(workout.id, exId, R, { w: v });
                       bump();
                     }}
                   />
-                  <input
-                    type="number"
-                    inputMode="numeric"
+                  <Stepper
+                    field="r"
+                    value={cur.r}
+                    base={prev?.r}
+                    step={1}
                     placeholder={prev?.r ?? "reps"}
-                    value={cur.r ?? ""}
-                    onChange={(e) => {
-                      O(workout.id, ex.exId, R, { r: e.target.value });
+                    onSet={(v) => {
+                      O(workout.id, exId, R, { r: v });
                       bump();
                     }}
                   />
                   <button
                     className={"ok" + (cur.done ? " on" : "")}
                     onClick={() => {
-                      O(workout.id, ex.exId, R, { done: !cur.done });
-                      if (!cur.done) {
+                      O(workout.id, exId, R, { done: !cur.done });
+                      if (!cur.done && pref("autoRest", true)) {
                         resumeAudio(audioRef);
                         setRest(ex.restSeconds);
                         setRestTotal(ex.restSeconds);
@@ -498,6 +567,38 @@ function weeklyStats(workouts) {
   return { thisWeek, streak };
 }
 
+// Stepper: input numérico con botones − / + para ajustar sin teclado
+function Stepper({ field, value, base, step, placeholder, onSet }) {
+  const adjust = (dir) => {
+    const cur =
+      value !== "" && value != null
+        ? parseFloat(value)
+        : base != null && base !== ""
+          ? parseFloat(base)
+          : 0;
+    let nv = Math.max(0, Math.round((cur + dir * step) * 100) / 100);
+    if (field === "r") nv = Math.max(0, Math.round(nv));
+    onSet(String(nv));
+  };
+  return (
+    <div className="stepper">
+      <button className="stepbtn" onClick={() => adjust(-1)} aria-label="menos">
+        −
+      </button>
+      <input
+        type="number"
+        inputMode={field === "r" ? "numeric" : "decimal"}
+        placeholder={placeholder}
+        value={value ?? ""}
+        onChange={(e) => onSet(e.target.value)}
+      />
+      <button className="stepbtn" onClick={() => adjust(1)} aria-label="más">
+        +
+      </button>
+    </div>
+  );
+}
+
 function Stat({ n, label, accent }) {
   return (
     <div className="sumstat">
@@ -558,6 +659,26 @@ function History() {
       ))}
     </>
   );
+}
+
+// restDone = fin del descanso: pitido + vibración + notificación (si hay
+// permiso y la app está en segundo plano), respetando la preferencia de aviso
+function restDone(ref) {
+  beep(ref);
+  if (pref("restNotify", true)) {
+    try {
+      navigator.vibrate?.([200, 80, 200]);
+    } catch {}
+    try {
+      if (
+        typeof Notification !== "undefined" &&
+        Notification.permission === "granted" &&
+        document.hidden
+      ) {
+        new Notification("Kilo", { body: "Descanso terminado — a por la siguiente serie", silent: false });
+      }
+    } catch {}
+  }
 }
 
 function resumeAudio(ref) {

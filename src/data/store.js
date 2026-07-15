@@ -350,6 +350,71 @@ function Ee(e, a, r) {
   return t;
 }
 
+// hasSets = ¿el entrenamiento tiene alguna serie con datos?
+var hasSets = (w) =>
+  Object.values(w.sets || {}).some((arr) =>
+    (arr || []).some((s) => s && (s.w || s.r || s.done)),
+  );
+
+// startOrResume = si ya hay un entrenamiento sin terminar para ese día/semana,
+// lo reanuda (no pierde el avance ni crea duplicados vacíos); si no, crea uno.
+function startOrResume(routineId, dayIdx, week) {
+  let existing = null;
+  for (let i = p.workouts.length - 1; i >= 0; i--) {
+    let w = p.workouts[i];
+    if (
+      w.routineId === routineId &&
+      w.dayIdx === dayIdx &&
+      w.week === week &&
+      !w.finished
+    ) {
+      existing = w;
+      break;
+    }
+  }
+  return existing || Ee(routineId, dayIdx, week);
+}
+
+// finishWorkout = marca un entrenamiento como terminado (para no reanudarlo)
+function finishWorkout(id) {
+  let w = p.workouts.find((x) => x.id === id);
+  if (!w) return;
+  w.finished = true;
+  h();
+  markLocalWrite();
+  syncStartWorkout(w);
+}
+
+// resumable = entrenamiento sin terminar y con series registradas de la rutina
+// y semana activas (para el banner "Continuar" del home)
+function resumable(routineId, week) {
+  for (let i = p.workouts.length - 1; i >= 0; i--) {
+    let w = p.workouts[i];
+    if (w.routineId === routineId && w.week === week && !w.finished && hasSets(w))
+      return w;
+  }
+  return null;
+}
+
+// setPref/pref = preferencias de entrenamiento (auto-descanso, avisos, etc.)
+function setPref(key, val) {
+  (p.prefs ||= {})[key] = val;
+  h();
+}
+var pref = (key, dflt) => (p.prefs && key in p.prefs ? p.prefs[key] : dflt);
+
+// addBodyLog/bodyLog = registro de peso corporal y medidas (serie temporal)
+function addBodyLog(entry) {
+  (p.body ||= []).push({
+    at: Date.now(),
+    date: new Date().toISOString().slice(0, 10),
+    ...entry,
+  });
+  h();
+  markLocalWrite();
+}
+var bodyLog = () => [...(p.body || [])].sort((a, b) => a.at - b.at);
+
 // ze = listWorkouts: historial de entrenamientos, más reciente primero
 var ze = () => [...p.workouts].reverse();
 
@@ -705,5 +770,7 @@ export {
   We, Ue, Ge, ee, ae, $e, Fe, pinTip, pinnedTips,
   usr, meId, updateProfile, requestVerify, setRoutinePrice,
   toggleFollow, isFollowing, followerCount, followingCount,
-  createRoutineFromTemplate
+  createRoutineFromTemplate,
+  startOrResume, finishWorkout, resumable, hasSets,
+  setPref, pref, addBodyLog, bodyLog
 };
