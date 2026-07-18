@@ -1,14 +1,33 @@
-import { useState } from "react";
-import { ta as ExerciseForum } from "./ExerciseForum.jsx";
-import { ia as PostDetail } from "./PostDetail.jsx";
-import { ca as RoutineEditor } from "./RoutineEditor.jsx";
-import { _e as Ejercicios } from "./Ejercicios.jsx";
+import { useState, useSyncExternalStore, lazy, Suspense } from "react";
 import { da as Entrenar } from "./Entrenar.jsx";
-import { la as Rutinas } from "./Rutinas.jsx";
-import { ga as Progreso } from "./Progreso.jsx";
-import { sa as Comunidad } from "./Comunidad.jsx";
-import { pf as Profile } from "./Profile.jsx";
-import { meId } from "../data/store.js";
+import { meId, usr, subscribeStore, getStoreVersion } from "../data/store.js";
+
+// Code-splitting: Entrenar (la pantalla principal) carga de inmediato; el
+// resto se descarga al primer uso para un arranque más rápido
+const ExerciseForum = lazy(() =>
+  import("./ExerciseForum.jsx").then((m) => ({ default: m.ta })),
+);
+const PostDetail = lazy(() =>
+  import("./PostDetail.jsx").then((m) => ({ default: m.ia })),
+);
+const RoutineEditor = lazy(() =>
+  import("./RoutineEditor.jsx").then((m) => ({ default: m.ca })),
+);
+const Ejercicios = lazy(() =>
+  import("./Ejercicios.jsx").then((m) => ({ default: m._e })),
+);
+const Rutinas = lazy(() =>
+  import("./Rutinas.jsx").then((m) => ({ default: m.la })),
+);
+const Progreso = lazy(() =>
+  import("./Progreso.jsx").then((m) => ({ default: m.ga })),
+);
+const Comunidad = lazy(() =>
+  import("./Comunidad.jsx").then((m) => ({ default: m.sa })),
+);
+const Profile = lazy(() =>
+  import("./Profile.jsx").then((m) => ({ default: m.pf })),
+);
 
 // Íconos de línea del tab bar (estilo SF Symbols, stroke por currentColor)
 const ICONS = {
@@ -82,6 +101,9 @@ function te() {
   const [tab, setTab] = useState("entrenar");
   const [overlay, setOverlay] = useState(null);
   const [, force] = useState(0);
+  // Cualquier escritura al store re-renderiza el árbol: adiós pantallas
+  // desactualizadas al cambiar de pestaña
+  useSyncExternalStore(subscribeStore, getStoreVersion);
   const go = (s) => {
     setOverlay(s);
     window.scrollTo(0, 0);
@@ -163,11 +185,11 @@ function te() {
           className="handlelink dim small"
           onClick={() => go({ t: "profile", id: meId() })}
         >
-          @{meId()}
+          @{usr(meId()).username || meId()}
         </button>
       </header>
       <main key={tab + ":" + (overlay?.t || "") + ":" + (overlay?.id || "")}>
-        {screen}
+        <Suspense fallback={null}>{screen}</Suspense>
       </main>
       <nav>
         {TABS.map(([id, label]) => (

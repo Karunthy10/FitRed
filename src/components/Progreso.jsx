@@ -279,20 +279,9 @@ function BodyTab({ unit, bump }) {
   );
 }
 
-// ----- Fotos de progreso (guardadas aparte, no en el snapshot de la nube) -----
-const PHOTO_KEY = "kilo-photos";
-const loadPhotos = () => {
-  try {
-    return JSON.parse(localStorage.getItem(PHOTO_KEY)) || [];
-  } catch {
-    return [];
-  }
-};
-const savePhotos = (a) => {
-  try {
-    localStorage.setItem(PHOTO_KEY, JSON.stringify(a.slice(0, 24)));
-  } catch {}
-};
+// ----- Fotos de progreso (IndexedDB, no en el snapshot de la nube) -----
+import { listPhotos, addPhoto, deletePhoto } from "../data/photodb.js";
+
 function compress(file) {
   return new Promise((res) => {
     const img = new Image();
@@ -311,24 +300,27 @@ function compress(file) {
 }
 
 function PhotoGallery() {
-  const [photos, setPhotos] = useState(loadPhotos());
+  const [photos, setPhotos] = useState([]);
   const [zoom, setZoom] = useState(null);
   const fileRef = useRef(null);
+  useEffect(() => {
+    listPhotos().then(setPhotos);
+  }, []);
 
   const add = async (file) => {
     if (!file) return;
     const dataUrl = await compress(file);
-    const next = [
-      { at: Date.now(), date: new Date().toISOString().slice(0, 10), dataUrl },
-      ...photos,
-    ].slice(0, 24);
-    setPhotos(next);
-    savePhotos(next);
+    const photo = {
+      at: Date.now(),
+      date: new Date().toISOString().slice(0, 10),
+      dataUrl,
+    };
+    await addPhoto(photo);
+    setPhotos([photo, ...photos]);
   };
-  const remove = (at) => {
-    const next = photos.filter((p) => p.at !== at);
-    setPhotos(next);
-    savePhotos(next);
+  const remove = async (at) => {
+    await deletePhoto(at);
+    setPhotos(photos.filter((p) => p.at !== at));
   };
 
   return (

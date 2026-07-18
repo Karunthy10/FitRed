@@ -23,6 +23,8 @@ import {
   finishWorkout,
   resumable,
   pref,
+  updateProfile,
+  deleteWorkout,
 } from "../data/store.js";
 import { $ as TECH } from "../data/seed.js";
 
@@ -51,6 +53,7 @@ function da({ goRoutines }) {
   const [welcomed, setWelcomed] = useState(dismissedWelcome());
   const [subs, setSubs] = useState({}); // sustituciones de esta sesión: idx -> exId
   const [picking, setPicking] = useState(null); // idx del ejercicio a sustituir
+  const [reopened, setReopened] = useState({}); // tarjetas completadas re-expandidas
   const timerRef = useRef(null);
   const audioRef = useRef(null);
   const startRef = useRef(0);
@@ -124,7 +127,30 @@ function da({ goRoutines }) {
               ? "Rompiste marca. Así se progresa."
               : "Constancia sobre intensidad. Nos vemos la próxima."}
           </p>
-          <button className="btn full" onClick={exitSession}>
+          <button
+            className="btn full"
+            onClick={() => {
+              // ¿Semana completa? Sugerir avanzar a la siguiente
+              const allDone = routine.days.every((_, N) =>
+                state.workouts.some(
+                  (wo) =>
+                    wo.routineId === routine.id &&
+                    wo.week === week &&
+                    wo.dayIdx === N &&
+                    Object.values(wo.sets).flat().some((s) => s?.done),
+                ),
+              );
+              exitSession();
+              if (
+                allDone &&
+                week < routine.weeks &&
+                confirm(
+                  `Completaste todos los días de la semana ${week}. ¿Pasamos a la semana ${week + 1}?`,
+                )
+              )
+                Me(week + 1);
+            }}
+          >
             Listo
           </button>
         </div>
@@ -136,30 +162,16 @@ function da({ goRoutines }) {
     return (
       <div className="pad">
         {!welcomed && (
-          <div className="card welcome pop">
-            <b className="welcometitle">Bienvenido a Kilo</b>
-            <p className="dim small">
-              Elige un día abajo y registra tus series: Kilo te sugiere el peso,
-              el calentamiento y el descanso. ¿Sin rutina que te lata? Copia una
-              de la comunidad.
-            </p>
-            <div className="row gap">
-              <button className="btn" onClick={goRoutines}>
-                Ver rutinas
-              </button>
-              <button
-                className="btn ghost"
-                onClick={() => {
-                  try {
-                    localStorage.setItem(WELCOME_KEY, "1");
-                  } catch {}
-                  setWelcomed(true);
-                }}
-              >
-                Entendido
-              </button>
-            </div>
-          </div>
+          <WelcomeCard
+            goRoutines={goRoutines}
+            done={() => {
+              try {
+                localStorage.setItem(WELCOME_KEY, "1");
+              } catch {}
+              setWelcomed(true);
+              bump();
+            }}
+          />
         )}
 
         <Greeting state={state} />
@@ -320,6 +332,25 @@ function da({ goRoutines }) {
         );
         const hasLast = last && last.some((s) => s?.w && s?.r);
         const weightStep = state.unit === "lb" ? 5 : 2.5;
+        // Tarjeta colapsada cuando todas las series están hechas: deja ver
+        // "qué sigue" sin scrollear entre tarjetas terminadas
+        const allDone =
+          setCount > 0 &&
+          Array.from({ length: setCount }).every(
+            (_, R) => workout.sets[exId]?.[R]?.done,
+          );
+        if (allDone && !reopened[N])
+          return (
+            <button
+              key={N}
+              className="card exdone"
+              onClick={() => setReopened((s) => ({ ...s, [N]: true }))}
+            >
+              <span className="okmini">✓</span>
+              <b className="grow">{def?.name}</b>
+              <span className="dim small">{setCount} series</span>
+            </button>
+          );
         return (
           <div key={N} className="card">
             <div className="row spread">
@@ -518,6 +549,46 @@ function da({ goRoutines }) {
   );
 }
 
+// Bienvenida de primer uso: pide tu nombre y lo guarda en el perfil
+function WelcomeCard({ goRoutines, done }) {
+  const [name, setName] = useState("");
+  const save = () => {
+    const clean = name.trim().replace(/\s+/g, "_").toLowerCase().slice(0, 24);
+    if (clean) updateProfile({ username: clean });
+    done();
+  };
+  return (
+    <div className="card welcome pop">
+      <b className="welcometitle">Bienvenido a Kilo</b>
+      <p className="dim small">
+        Registra tus series y Kilo te sugiere el peso, el calentamiento y el
+        descanso. Primero, ¿cómo te llamas?
+      </p>
+      <input
+        placeholder="Tu nombre de usuario"
+        value={name}
+        maxLength={24}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && save()}
+      />
+      <div className="row gap">
+        <button className="btn" onClick={save}>
+          {name.trim() ? "Empezar" : "Empezar sin nombre"}
+        </button>
+        <button
+          className="btn ghost"
+          onClick={() => {
+            save();
+            goRoutines();
+          }}
+        >
+          Ver rutinas
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Saludo + racha: sesiones de esta semana (calendario) y semanas seguidas
 // entrenando al menos una vez
 function Greeting({ state }) {
@@ -642,21 +713,97 @@ function buildSummary(state, workout, day, startMs) {
   return { doneSets, tonnage: Math.round(tonnage), prs, mins, dayName: day.name };
 }
 
+// Historial tocable: expande el detalle de la sesión, permite corregir
+// series (peso/reps/hecho) después de cerrada y borrar el entrenamiento
 function History() {
+  const [open, setOpen] = useState(null);
+  const [, force] = useState(0);
+  const bump = () => force((s) => s + 1);
   const workouts = ze().slice(0, 10);
   if (!workouts.length) return null;
   return (
     <>
       <h3>Historial</h3>
-      {workouts.map((w) => (
-        <div key={w.id} className="card small">
-          <b>{w.dayName}</b>{" "}
-          <span className="dim">
-            · sem {w.week} · {w.date} ·{" "}
-            {Object.values(w.sets).flat().filter((s) => s?.done).length} sets
-          </span>
-        </div>
-      ))}
+      {workouts.map((w) => {
+        const isOpen = open === w.id;
+        const doneCount = Object.values(w.sets).flat().filter((s) => s?.done).length;
+        return (
+          <div key={w.id} className="card small">
+            <button
+              className="histrow"
+              onClick={() => setOpen(isOpen ? null : w.id)}
+            >
+              <span className="grow">
+                <b>{w.dayName}</b>{" "}
+                <span className="dim">
+                  · sem {w.week} · {w.date} · {doneCount} sets
+                </span>
+              </span>
+              <span className="dim">{isOpen ? "▴" : "▾"}</span>
+            </button>
+            {isOpen && (
+              <div className="histdetail">
+                {Object.entries(w.sets).map(([exId, sets]) => (
+                  <div key={exId} className="histex">
+                    <b className="small">{C(exId)?.name || exId}</b>
+                    {(sets || []).map((s, R) =>
+                      s ? (
+                        <div key={R} className="setrow">
+                          <span className="setn">{R + 1}</span>
+                          <input
+                            type="number"
+                            inputMode="decimal"
+                            value={s.w ?? ""}
+                            placeholder="kg"
+                            onChange={(e) => {
+                              O(w.id, exId, R, { w: e.target.value });
+                              bump();
+                            }}
+                          />
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            value={s.r ?? ""}
+                            placeholder="reps"
+                            onChange={(e) => {
+                              O(w.id, exId, R, { r: e.target.value });
+                              bump();
+                            }}
+                          />
+                          <button
+                            className={"ok" + (s.done ? " on" : "")}
+                            onClick={() => {
+                              O(w.id, exId, R, { done: !s.done });
+                              bump();
+                            }}
+                          >
+                            ✓
+                          </button>
+                        </div>
+                      ) : null,
+                    )}
+                  </div>
+                ))}
+                {!Object.keys(w.sets).length && (
+                  <p className="dim small">Sesión sin series registradas.</p>
+                )}
+                <button
+                  className="btn ghost danger full"
+                  onClick={() => {
+                    if (confirm("¿Borrar este entrenamiento del historial?")) {
+                      deleteWorkout(w.id);
+                      setOpen(null);
+                      bump();
+                    }
+                  }}
+                >
+                  Borrar entrenamiento
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </>
   );
 }

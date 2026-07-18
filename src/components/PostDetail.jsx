@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { W, Ye, Hn } from "./ui.jsx";
-import { V, X, Le, De, D, usr } from "../data/store.js";
+import { V, X, Le, De, D, usr, meId, editPost, deletePost } from "../data/store.js";
 
 const catLabel = (id) => D.find((d) => d[0] === id)?.[1] || id;
 
 function ia({ postId, goBack, goRoutine, openProfile }) {
   const [, force] = useState(0);
   const [draft, setDraft] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [eTitle, setETitle] = useState("");
+  const [eBody, setEBody] = useState("");
   const post = V(postId);
   if (!post) return null;
   const author = usr(post.userId);
+  const mine = post.userId === meId();
   const comments = [...post.comments].sort((a, b) => b.likes - a.likes);
 
   return (
@@ -26,8 +30,37 @@ function ia({ postId, goBack, goRoutine, openProfile }) {
           <Hn id={post.userId} onOpen={openProfile} />
           {author.role && <span className="dim small">· {author.role}</span>}
         </div>
-        <h2>{post.title}</h2>
-        {post.body && <p className="body">{post.body}</p>}
+        {editing ? (
+          <>
+            <input value={eTitle} onChange={(e) => setETitle(e.target.value)} />
+            <textarea
+              rows={4}
+              value={eBody}
+              onChange={(e) => setEBody(e.target.value)}
+            />
+            <div className="row gap">
+              <button
+                className="btn"
+                disabled={!eTitle.trim()}
+                onClick={() => {
+                  editPost(post.id, { title: eTitle.trim(), body: eBody.trim() });
+                  setEditing(false);
+                  force((s) => s + 1);
+                }}
+              >
+                Guardar
+              </button>
+              <button className="btn ghost" onClick={() => setEditing(false)}>
+                Cancelar
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2>{post.title}</h2>
+            {post.body && <p className="body">{post.body}</p>}
+          </>
+        )}
 
         <div className="row gap" style={{ marginTop: 6 }}>
           <W
@@ -56,6 +89,31 @@ function ia({ postId, goBack, goRoutine, openProfile }) {
             </button>
           )}
         </div>
+        {mine && !editing && (
+          <div className="row gap" style={{ marginTop: 8 }}>
+            <button
+              className="mini"
+              onClick={() => {
+                setETitle(post.title);
+                setEBody(post.body || "");
+                setEditing(true);
+              }}
+            >
+              Editar
+            </button>
+            <button
+              className="mini danger"
+              onClick={() => {
+                if (confirm("¿Borrar esta publicación?")) {
+                  deletePost(post.id);
+                  goBack();
+                }
+              }}
+            >
+              Borrar
+            </button>
+          </div>
+        )}
       </div>
 
       <h3>

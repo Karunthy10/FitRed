@@ -10,6 +10,7 @@ import {
   Ce,
   Ie,
   Pe,
+  C,
   createRoutineFromTemplate,
 } from "../data/store.js";
 
@@ -251,6 +252,12 @@ function la({ goEdit, force9, openProfile }) {
               </button>
             )}
             <button
+              className="btn ghost"
+              onClick={() => shareRoutine(r, (id) => C(id)?.name || id)}
+            >
+              Compartir
+            </button>
+            <button
               className="btn ghost danger"
               onClick={() =>
                 confirm("¿Borrar rutina?") && (Pe(r.id), bump())
@@ -310,6 +317,37 @@ function la({ goEdit, force9, openProfile }) {
         ))}
     </div>
   );
+}
+
+// Comparte la rutina como texto (WhatsApp, notas…) con share nativo o
+// portapapeles como respaldo
+async function shareRoutine(r, exName) {
+  const lines = [
+    `${r.name} — rutina Kilo`,
+    ...r.days.map(
+      (d) =>
+        `\n${d.name}:\n` +
+        d.exercises
+          .map((e) => `  • ${exName(e.exId)} ${e.workingSets}×${e.repRange}`)
+          .join("\n"),
+    ),
+    "\nEntrena con Kilo: https://fitred.vercel.app",
+  ];
+  const text = lines.join("\n");
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: r.name, text });
+      return;
+    }
+  } catch {
+    return; // usuario canceló el share
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    alert("Rutina copiada al portapapeles ✓");
+  } catch {
+    alert(text);
+  }
 }
 
 // Panel para publicar una rutina en la comunidad, gratis o con precio

@@ -1,4 +1,4 @@
-@import "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap";
+@import "./fonts.css";
 
 /* ─── Sistema visual "Kilo" ───────────────────────────────────────────
    Identidad del logo: K de marfil/crema con barra de pesas sobre azul
@@ -567,6 +567,17 @@ textarea:focus {
 }
 .app nav button.on {
   color: var(--rojo);
+  position: relative;
+}
+/* Indicador de pestaña activa: pastilla bajo el ícono */
+.app nav button.on::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  width: 26px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--rojo);
 }
 .app nav .ic {
   font-size: 19px;
@@ -1104,6 +1115,49 @@ h3 {
   text-transform: uppercase;
   font-size: 24px;
   line-height: 1.05;
+}
+
+/* Historial expandible y editable */
+.histrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  min-height: 40px;
+}
+.histdetail {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--humo);
+}
+.histex {
+  margin-bottom: 10px;
+}
+
+/* Ejercicio completado: tarjeta colapsada */
+.card.exdone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  border-left: 3px solid var(--verde);
+  opacity: 0.75;
+  min-height: 52px;
+}
+.okmini {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--verde);
+  color: #06130a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 /* Interruptor tipo switch */

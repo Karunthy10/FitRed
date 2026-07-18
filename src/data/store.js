@@ -1,6 +1,8 @@
 import { Ke, Xe, ce, de, pe, ue, L, G, me, be, ge, xe, $, P } from "./seed.js";
 import {
   markLocalWrite,
+  syncDeleteWorkout,
+  syncDeletePost,
   syncCreateRoutine,
   syncUpdateRoutine,
   syncCopyRoutine,
@@ -73,12 +75,26 @@ function q() {
   return ((!p || !p.exercises) && (p = he()), p);
 }
 
+// Suscripción a cambios del store (para useSyncExternalStore): cada h()
+// incrementa la versión y notifica en microtask (nunca durante render).
+var storeVersion = 0;
+var storeListeners = new Set();
+function subscribeStore(cb) {
+  storeListeners.add(cb);
+  return () => storeListeners.delete(cb);
+}
+var getStoreVersion = () => storeVersion;
+
 // h = saveState: persiste el estado completo en localStorage y programa
 // (con debounce) un snapshot de respaldo en Supabase (state_snapshots)
 function h() {
   try {
     localStorage.setItem(fe, JSON.stringify(p));
   } catch {}
+  storeVersion++;
+  queueMicrotask(() => {
+    for (const cb of storeListeners) cb();
+  });
   scheduleSnapshot(Oe);
 }
 
@@ -415,6 +431,14 @@ function addBodyLog(entry) {
 }
 var bodyLog = () => [...(p.body || [])].sort((a, b) => a.at - b.at);
 
+// deleteWorkout = borra un entrenamiento del historial (y sus series remotas)
+function deleteWorkout(id) {
+  p.workouts = p.workouts.filter((w) => w.id !== id);
+  h();
+  markLocalWrite();
+  syncDeleteWorkout(id);
+}
+
 // ze = listWorkouts: historial de entrenamientos, más reciente primero
 var ze = () => [...p.workouts].reverse();
 
@@ -505,6 +529,26 @@ function Te({ category: e, title: a, body: r }) {
   h();
   markLocalWrite();
   syncCreatePost(post);
+}
+
+// editPost = edita título/cuerpo de una publicación propia
+function editPost(id, patch) {
+  let r = V(id);
+  if (!r || r.userId !== p.me) return;
+  Object.assign(r, patch);
+  h();
+  markLocalWrite();
+  syncCreatePost(r);
+}
+
+// deletePost = borra una publicación propia
+function deletePost(id) {
+  let r = V(id);
+  if (!r || r.userId !== p.me) return;
+  p.posts = p.posts.filter((x) => x.id !== id);
+  h();
+  markLocalWrite();
+  syncDeletePost(id);
 }
 
 // Le = addPostComment: agrega un comentario a un post
@@ -772,5 +816,60 @@ export {
   toggleFollow, isFollowing, followerCount, followingCount,
   createRoutineFromTemplate,
   startOrResume, finishWorkout, resumable, hasSets,
-  setPref, pref, addBodyLog, bodyLog
+  setPref, pref, addBodyLog, bodyLog,
+  subscribeStore, getStoreVersion, deleteWorkout, editPost, deletePost
+};
+
+// ─── Alias con nombres descriptivos ──────────────────────────────────
+// Los nombres cortos de arriba vienen de la migración original; el código
+// nuevo debe importar estos. (Mismo objeto, cero coste.)
+export {
+  q as getState,
+  h as saveState,
+  ve as resetState,
+  F as listExercises,
+  C as getExercise,
+  j as getVoteScore,
+  J as getMyVote,
+  ye as exercisesByMuscle,
+  _ as voteExercise,
+  we as createExercise,
+  Y as listExerciseTips,
+  ke as addExerciseTip,
+  Se as toggleLikeTip,
+  Z as getRoutine,
+  Ne as listPublicRoutines,
+  Re as listMyRoutines,
+  Ce as copyRoutine,
+  je as createRoutine,
+  k as updateRoutine,
+  Ie as publishRoutineAsPost,
+  Pe as deleteRoutine,
+  qe as setActiveRoutine,
+  Me as setActiveWeek,
+  Ee as startWorkout,
+  ze as listWorkouts,
+  O as updateSet,
+  Q as getLastCompletedSets,
+  K as estimate1RM,
+  Be as getBestE1RM,
+  D as POST_CATEGORIES,
+  Ae as listPosts,
+  V as getPost,
+  X as votePost,
+  Te as createPost,
+  Le as addPostComment,
+  De as toggleLikePostComment,
+  M as getUsername,
+  H as migrateToV2,
+  Ve as setUnit,
+  Oe as exportStateJSON,
+  He as importStateJSON,
+  We as getTargetRIR,
+  Ue as suggestProgression,
+  Ge as warmupSuggestion,
+  ee as muscleVolumeSummary,
+  ae as personalRecords,
+  $e as exerciseHistory,
+  Fe as listTrainedExerciseIds,
 };

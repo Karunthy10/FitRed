@@ -252,6 +252,25 @@ export function syncCreatePost(post) {
 }
 export const syncVotePost = syncCreatePost;
 
+// Borra remotamente un entrenamiento y sus series (sin FK cascade asumida)
+export async function syncDeleteWorkout(workoutId) {
+  const rid = remoteId("workouts", workoutId);
+  if (!supabase || !status.authed || !status.online) {
+    enqueue({ table: "workouts", op: "delete", key: rid });
+    return;
+  }
+  try {
+    await supabase.from("workout_sets").delete().eq("workout_id", rid);
+    await supabase.from("workouts").delete().eq("id", rid);
+  } catch {
+    enqueue({ table: "workouts", op: "delete", key: rid });
+  }
+}
+
+export function syncDeletePost(postId) {
+  return mirrorDelete("posts", remoteId("posts", postId));
+}
+
 export function syncPostComment(postId, comment) {
   return mirror("post_comments", {
     id: remoteId("postComments", comment.id),
