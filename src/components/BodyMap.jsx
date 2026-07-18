@@ -5,8 +5,8 @@
 const VB = "0 0 240 470";
 
 function oe({ side, selected, onSelect }) {
-  const fill = (m) => (selected === m ? "url(#ksel)" : "#212430");
-  const stroke = (m) => (selected === m ? "#ff6a5e" : "#343845");
+  const fill = (m) => (selected === m ? "url(#ksel)" : "#232f36");
+  const stroke = (m) => (selected === m ? "#ece7da" : "#38454d");
   const M = ({ m, d, key }) => (
     <path
       key={key}
@@ -33,16 +33,16 @@ function oe({ side, selected, onSelect }) {
   const defs = (
     <defs>
       <linearGradient id="ksel" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#ff5a47" />
-        <stop offset="1" stopColor="#e02718" />
+        <stop offset="0" stopColor="#f4efe2" />
+        <stop offset="1" stopColor="#cdc6b4" />
       </linearGradient>
     </defs>
   );
 
   const head = (
     <g>
-      <circle cx="120" cy="34" r="21" fill="#1b1e27" stroke="#343845" strokeWidth="1.1" />
-      <path d="M112 52 h16 v10 q-8 5 -16 0 Z" fill="#1b1e27" stroke="#343845" strokeWidth="1.1" />
+      <circle cx="120" cy="34" r="21" fill="#1b262c" stroke="#38454d" strokeWidth="1.1" />
+      <path d="M112 52 h16 v10 q-8 5 -16 0 Z" fill="#1b262c" stroke="#38454d" strokeWidth="1.1" />
     </g>
   );
 
@@ -62,7 +62,7 @@ function oe({ side, selected, onSelect }) {
 
   // Silueta base (torso + brazos + piernas) detrás de los músculos
   const silhouette = (d) => (
-    <path d={d} fill="#16171c" stroke="#2a2e37" strokeWidth="1.2" />
+    <path d={d} fill="#111a1f" stroke="#2d3a42" strokeWidth="1.2" />
   );
 
   if (side === "front") {

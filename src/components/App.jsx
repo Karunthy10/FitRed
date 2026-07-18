@@ -56,6 +56,28 @@ const TABS = [
   ["comunidad", "Comunidad"],
 ];
 
+// Marca Kilo: la K de la barra de pesas (crema), inspirada en el logo
+function KiloMark() {
+  return (
+    <svg className="kmark" viewBox="0 0 148 40" aria-label="Kilo">
+      {/* barra */}
+      <rect x="6" y="18.25" width="136" height="3.5" rx="1.75" />
+      {/* discos izquierda */}
+      <rect x="16" y="8" width="6" height="24" rx="2" />
+      <rect x="25" y="12" width="5" height="16" rx="2" />
+      <rect x="33" y="15" width="4" height="10" rx="2" />
+      {/* discos derecha */}
+      <rect x="126" y="8" width="6" height="24" rx="2" />
+      <rect x="118" y="12" width="5" height="16" rx="2" />
+      <rect x="111" y="15" width="4" height="10" rx="2" />
+      {/* K */}
+      <rect x="60" y="7" width="9" height="26" rx="1" />
+      <polygon points="69,20.5 85,7 93,7 74,21.5" />
+      <polygon points="69,19.5 85,33 93,33 74,18.5" />
+    </svg>
+  );
+}
+
 function te() {
   const [tab, setTab] = useState("entrenar");
   const [overlay, setOverlay] = useState(null);
@@ -133,9 +155,10 @@ function te() {
   return (
     <div className="app">
       <header>
-        <b className="brand">
-          <span className="k">K</span>ILO
-        </b>
+        <div className="brandlock">
+          <KiloMark />
+          <b className="brand">KILO</b>
+        </div>
         <button
           className="handlelink dim small"
           onClick={() => go({ t: "profile", id: meId() })}

@@ -1,25 +1,30 @@
 @import "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap";
 
 /* ─── Sistema visual "Kilo" ───────────────────────────────────────────
-   Un solo acento (rojo, la K de la marca) sobre carbón. Verde y ámbar
-   son semáforos (serie hecha / descanso), nunca decoración. Los números
-   (kilos, reps, cronómetro) van en monoespaciada con cifras tabulares. */
+   Identidad del logo: K de marfil/crema con barra de pesas sobre azul
+   marino. La app es monocroma crema+navy; la crema (--rojo, heredado) es
+   la marca y el color de acción. Verde y ámbar son semáforos funcionales
+   (serie hecha / descanso) y el rojo (--danger) solo para destructivo.
+   Los números van en monoespaciada con cifras tabulares. */
 :root {
-  --carbon: #0b0b0d;
-  --acero: #16171c;
-  --humo: #26272e;
-  --tiza: #f2f0eb;
-  --ceniza: #9e9a94;
-  --rojo: #ff3b2f;
-  --brasa: #ff7a45;
-  --verde: #2fd573;
-  --ambar: #ffb324;
+  --carbon: #141e23;
+  --acero: #1c272e;
+  --humo: #2d3a42;
+  --tiza: #ece7da;
+  --ceniza: #93a0a6;
+  --rojo: #ece7da; /* crema = marca/acento (nombre heredado) */
+  --brasa: #fff3d6;
+  --verde: #3ecf6e;
+  --ambar: #ffc24b;
+  --danger: #ff5a47;
+  --ink: #141e23; /* texto sobre superficies crema */
 
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
 
   /* Alias heredados: los componentes usan estos nombres (inline y CSS).
-     --blue apunta al rojo a propósito: era el color primario anterior. */
+     --blue/--red apuntan a la crema (acento). El rojo real vive en
+     --danger para acciones destructivas. */
   --bg: var(--carbon);
   --panel: var(--acero);
   --line: var(--humo);
@@ -27,7 +32,7 @@
   --dim: var(--ceniza);
   --blue: var(--rojo);
   --amber: var(--ambar);
-  --red: var(--rojo);
+  --red: var(--danger);
   --green: var(--verde);
 }
 
@@ -163,7 +168,7 @@ input::-webkit-inner-spin-button {
 .chip.on {
   background: var(--rojo);
   border-color: var(--rojo);
-  color: #fff;
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -186,7 +191,7 @@ input::-webkit-inner-spin-button {
   opacity: 0.6;
 }
 .card.hero2 {
-  border-color: rgba(255, 59, 47, 0.55);
+  border-color: rgba(236, 231, 218, 0.55);
 }
 .card.cmt p {
   margin: 6px 0 0;
@@ -237,7 +242,7 @@ input::-webkit-inner-spin-button {
 
 .btn {
   background: var(--rojo);
-  color: #fff;
+  color: var(--ink);
   border: none;
   border-radius: 12px;
   padding: 9px 16px;
@@ -259,8 +264,8 @@ input::-webkit-inner-spin-button {
   margin-top: 6px;
 }
 .btn.danger {
-  color: var(--rojo);
-  border-color: rgba(255, 59, 47, 0.4);
+  color: var(--danger);
+  border-color: rgba(255, 90, 71, 0.4);
 }
 
 .back {
@@ -286,7 +291,7 @@ input::-webkit-inner-spin-button {
 }
 .tag {
   display: inline-block;
-  background: rgba(255, 59, 47, 0.12);
+  background: rgba(236, 231, 218, 0.12);
   color: var(--rojo);
   border-radius: 6px;
   padding: 2px 8px;
@@ -316,7 +321,7 @@ textarea {
 input:focus,
 textarea:focus {
   outline: none;
-  border-color: rgba(255, 59, 47, 0.6);
+  border-color: rgba(236, 231, 218, 0.6);
 }
 .titleinput {
   font-size: 24px;
@@ -342,7 +347,7 @@ textarea:focus {
   min-height: 40px;
 }
 .mini.danger {
-  color: var(--rojo);
+  color: var(--danger);
 }
 
 .exrow {
@@ -360,7 +365,7 @@ textarea:focus {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: rgba(255, 59, 47, 0.12);
+  background: rgba(236, 231, 218, 0.12);
   color: var(--rojo);
   border-radius: 6px;
   padding: 3px 9px;
@@ -506,21 +511,29 @@ textarea:focus {
   border-bottom: 1px solid var(--humo);
   position: sticky;
   top: 0;
-  background: rgba(11, 11, 13, 0.86);
+  background: rgba(20, 30, 35, 0.82);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   z-index: 5;
+}
+.brandlock {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.kmark {
+  height: 26px;
+  width: auto;
+  fill: var(--tiza);
+  display: block;
 }
 .brand {
   font-family: var(--display);
   font-weight: 700;
   font-size: 21px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   color: var(--tiza);
   text-transform: uppercase;
-}
-.brand .k {
-  color: var(--rojo);
 }
 
 .app nav {
@@ -529,7 +542,7 @@ textarea:focus {
   left: 0;
   right: 0;
   display: flex;
-  background: rgba(16, 16, 20, 0.92);
+  background: rgba(17, 26, 31, 0.9);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   border-top: 1px solid var(--humo);
@@ -598,7 +611,7 @@ h3 {
   left: 0;
   right: 0;
   bottom: calc(64px + env(safe-area-inset-bottom));
-  background: rgba(22, 23, 28, 0.96);
+  background: rgba(22, 32, 38, 0.96);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   border-top: 1px solid var(--humo);
@@ -615,7 +628,7 @@ h3 {
 .tfill {
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, var(--rojo), var(--brasa));
+  background: linear-gradient(90deg, var(--ambar), #ffd98a);
   transition: width 1s linear;
 }
 .tcount {
@@ -630,8 +643,8 @@ h3 {
 }
 
 .techband {
-  background: rgba(255, 59, 47, 0.1);
-  color: #ff9187;
+  background: rgba(255, 194, 75, 0.12);
+  color: #ffd98a;
   border-radius: 10px;
   padding: 7px 10px;
   font-size: 12px;
@@ -706,12 +719,12 @@ h3 {
   white-space: nowrap;
 }
 .t-rutinas {
-  background: rgba(255, 59, 47, 0.14);
+  background: rgba(236, 231, 218, 0.16);
   color: var(--rojo);
 }
 .t-ejercicios {
-  background: rgba(255, 122, 69, 0.14);
-  color: var(--brasa);
+  background: rgba(120, 170, 255, 0.16);
+  color: #8fb3ff;
 }
 .t-tips {
   background: rgba(255, 179, 36, 0.14);
@@ -722,8 +735,8 @@ h3 {
   color: var(--verde);
 }
 .t-alimentacion {
-  background: rgba(120, 170, 255, 0.14);
-  color: #8fb3ff;
+  background: rgba(255, 160, 122, 0.16);
+  color: #ffa07a;
 }
 
 /* Control segmentado (ventana temporal tipo Reddit): chips más compactos */
@@ -945,7 +958,7 @@ h3 {
 .helpbtn.on {
   background: var(--rojo);
   border-color: var(--rojo);
-  color: #fff;
+  color: var(--ink);
 }
 .glossary p {
   font-size: 13px;
@@ -959,7 +972,7 @@ h3 {
 
 /* Bienvenida de primer uso */
 .card.welcome {
-  border-color: rgba(255, 59, 47, 0.4);
+  border-color: rgba(236, 231, 218, 0.4);
 }
 .welcometitle {
   font-family: var(--display);
@@ -1073,7 +1086,7 @@ h3 {
   display: flex;
   align-items: center;
   gap: 12px;
-  border-color: rgba(255, 59, 47, 0.5);
+  border-color: rgba(236, 231, 218, 0.5);
 }
 .ctalabel {
   display: block;
@@ -1234,7 +1247,7 @@ h3 {
   height: 15px;
   border-radius: 50%;
   background: var(--blue);
-  color: #fff;
+  color: var(--ink);
   font-size: 10px;
   font-weight: 800;
   line-height: 1;
@@ -1269,7 +1282,7 @@ h3 {
   flex-shrink: 0;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--rojo), var(--brasa));
-  color: #fff;
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1287,7 +1300,7 @@ h3 {
 .rolepill {
   display: inline-block;
   margin-top: 4px;
-  background: rgba(255, 59, 47, 0.12);
+  background: rgba(236, 231, 218, 0.12);
   color: var(--rojo);
   border-radius: 6px;
   padding: 2px 9px;
