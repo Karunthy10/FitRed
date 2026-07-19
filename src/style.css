@@ -48,6 +48,7 @@ body {
   background: var(--carbon);
   color: var(--tiza);
   font-family: Inter, -apple-system, sans-serif;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -83,10 +84,19 @@ button {
   background: none;
   color: inherit;
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease,
+    background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 button:active {
   transform: scale(0.97);
+}
+
+/* Navegación con teclado: anillo crema visible solo en :focus-visible,
+   nunca eliminado sin reemplazo (WCAG 2.4.7) */
+:focus-visible {
+  outline: 2px solid rgba(236, 231, 218, 0.75);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 @media (prefers-reduced-motion: reduce) {
   button {
@@ -175,9 +185,9 @@ input::-webkit-inner-spin-button {
 .card {
   background: var(--acero);
   border: 1px solid var(--humo);
-  border-radius: 18px;
-  padding: 14px;
-  margin: 10px 0;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 12px 0;
 }
 .card.post {
   cursor: pointer;
@@ -197,8 +207,8 @@ input::-webkit-inner-spin-button {
   margin: 6px 0 0;
 }
 .card.small {
-  padding: 10px 12px;
-  margin: 6px 0;
+  padding: 8px 12px;
+  margin: 8px 0;
 }
 
 .vote {
@@ -210,7 +220,7 @@ input::-webkit-inner-spin-button {
 .vote .v {
   background: none;
   border: none;
-  color: #56575e;
+  color: var(--ceniza);
   font-size: 17px;
   padding: 6px 12px;
   min-height: 32px;
@@ -245,7 +255,7 @@ input::-webkit-inner-spin-button {
   color: var(--ink);
   border: none;
   border-radius: 12px;
-  padding: 9px 16px;
+  padding: 8px 16px;
   font-weight: 700;
   font-size: 14px;
   min-height: 44px;
@@ -322,6 +332,7 @@ input:focus,
 textarea:focus {
   outline: none;
   border-color: rgba(236, 231, 218, 0.6);
+  box-shadow: 0 0 0 3px rgba(236, 231, 218, 0.12);
 }
 .titleinput {
   font-size: 24px;
@@ -446,7 +457,7 @@ textarea:focus {
 .setn {
   min-width: 24px;
   text-align: center;
-  color: #56575e;
+  color: var(--ceniza);
   font-family: var(--mono);
   font-size: 13px;
 }
@@ -459,7 +470,7 @@ textarea:focus {
   border-radius: 12px;
   background: var(--carbon);
   border: 1px solid var(--humo);
-  color: #56575e;
+  color: var(--ceniza);
   font-size: 18px;
 }
 .ok.on {
@@ -519,7 +530,7 @@ textarea:focus {
 .brandlock {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
 }
 .kmark {
   height: 26px;
@@ -555,15 +566,15 @@ textarea:focus {
   flex: 1;
   background: none;
   border: none;
-  color: #56575e;
-  padding: 9px 0 7px;
-  font-size: 10px;
+  color: var(--ceniza);
+  padding: 8px 0;
+  font-size: 11px;
   font-weight: 500;
-  min-height: 50px;
+  min-height: 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 .app nav button.on {
   color: var(--rojo);
@@ -667,7 +678,7 @@ h3 {
 }
 .rirn {
   display: block;
-  font-size: 9px;
+  font-size: 10px;
   color: var(--ambar);
   font-style: normal;
 }
@@ -710,7 +721,7 @@ h3 {
   color: var(--ceniza);
 }
 .danger {
-  color: var(--rojo);
+  color: var(--danger);
 }
 
 .syncstatus b {
@@ -756,8 +767,8 @@ h3 {
   margin-bottom: 4px;
 }
 .seg .chip {
-  padding: 6px 13px;
-  min-height: 34px;
+  padding: 4px 12px;
+  min-height: 36px;
   font-size: 12px;
 }
 
@@ -781,15 +792,16 @@ h3 {
   }
 }
 
-/* Transición suave al cambiar de pantalla/overlay */
+/* Transición suave al cambiar de pantalla/overlay.
+   Solo opacidad: un transform retenido (fill: both) convertiría a main
+   en containing block y rompería los position:fixed internos (el timer
+   de descanso quedaba anclado al fondo del documento, invisible). */
 @keyframes screenin {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 .app main {
@@ -1254,7 +1266,7 @@ h3 {
   position: absolute;
   left: 4px;
   bottom: 4px;
-  font-size: 10px;
+  font-size: 11px;
   font-family: var(--mono);
   background: rgba(11, 11, 13, 0.7);
   padding: 1px 5px;
@@ -1397,7 +1409,7 @@ h3 {
 
 .followrow {
   display: flex;
-  gap: 18px;
+  gap: 16px;
   margin-top: 8px;
   font-size: 13px;
   color: var(--ceniza);
@@ -1469,4 +1481,139 @@ h3 {
   font-weight: 700;
   font-size: 18px;
   text-transform: uppercase;
+}
+
+/* ─── Estados hover (solo dispositivos con puntero real) ─────────────
+   En táctil el hover "pegajoso" tras el tap se siente roto; se limita
+   a @media (hover: hover). Sutil, 150ms, sin mover el layout. */
+@media (hover: hover) {
+  .btn:not(:disabled):hover {
+    filter: brightness(1.07);
+  }
+  .btn.ghost:not(:disabled):hover {
+    filter: none;
+    background: var(--humo);
+  }
+  .chip:hover {
+    border-color: var(--ceniza);
+    color: var(--tiza);
+  }
+  .chip.on:hover {
+    border-color: var(--rojo);
+    color: var(--ink);
+  }
+  .card.post:hover,
+  .card.day:hover {
+    border-color: rgba(147, 160, 166, 0.55);
+  }
+  .app nav button:hover {
+    color: var(--tiza);
+  }
+  .mini:hover,
+  .stepbtn:hover,
+  .heart:hover,
+  .pin:hover,
+  .swapopt:hover {
+    border-color: var(--ceniza);
+  }
+  .vote .v:hover {
+    color: var(--tiza);
+  }
+  .handlelink:hover {
+    text-decoration: underline;
+  }
+  .back:hover {
+    opacity: 0.8;
+  }
+}
+
+/* ─── Responsive: tablet ─────────────────────────────────────────────
+   La columna de contenido crece un paso y el cluster de tabs se centra
+   para alinearse con ella (en vez de estirarse a todo el ancho). */
+@media (min-width: 600px) {
+  #root {
+    max-width: 600px;
+  }
+  .app nav {
+    justify-content: center;
+  }
+  .app nav button {
+    flex: 0 1 120px;
+  }
+  .timerbar,
+  .timerbar2 {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 600px;
+    border: 1px solid var(--humo);
+    border-bottom: none;
+    border-radius: 14px 14px 0 0;
+  }
+}
+
+/* ─── Responsive: escritorio ─────────────────────────────────────────
+   El tab bar inferior se convierte en rail lateral fijo (patrón de app
+   de escritorio: Linear/Slack); el contenido se centra en el espacio
+   restante y desaparece el hueco inferior reservado para la barra. */
+@media (min-width: 900px) {
+  #root {
+    max-width: 600px;
+    margin-left: max(220px, calc(50vw - 200px));
+    margin-right: 0;
+    padding-bottom: 32px;
+  }
+  .pad {
+    padding-bottom: 32px;
+  }
+  .app nav {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 220px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 88px 12px 16px;
+    border-top: none;
+    border-right: 1px solid var(--humo);
+  }
+  .app nav button {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    min-height: 44px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+  .app nav button.on {
+    background: rgba(236, 231, 218, 0.08);
+  }
+  .app nav button.on::after {
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 22px;
+    border-radius: 0 2px 2px 0;
+  }
+  .app nav button.on svg {
+    transform: none;
+  }
+  .timerbar,
+  .timerbar2 {
+    left: calc(220px + max(0px, 50vw - 200px - 220px));
+    transform: none;
+    bottom: 0;
+    max-width: 600px;
+  }
+  .photozoom {
+    padding: 48px;
+  }
 }

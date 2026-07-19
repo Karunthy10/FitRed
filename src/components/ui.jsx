@@ -20,12 +20,16 @@ var rl = (ts) => {
       children: [
         o("button", {
           className: a === 1 ? "v on" : "v",
+          "aria-label": "Votar a favor",
+          "aria-pressed": a === 1,
           onClick: () => r(a === 1 ? 0 : 1),
           children: "\u25B2",
         }),
         o("b", { children: e }),
         o("button", {
           className: a === -1 ? "v dn" : "v",
+          "aria-label": "Votar en contra",
+          "aria-pressed": a === -1,
           onClick: () => r(a === -1 ? 0 : -1),
           children: "\u25BC",
         }),

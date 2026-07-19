@@ -369,7 +369,11 @@ function PhotoGallery() {
                   alt={p.date}
                   onClick={() => setZoom(p)}
                 />
-                <button className="photodel" onClick={() => remove(p.at)}>
+                <button
+                  className="photodel"
+                  aria-label="Borrar foto"
+                  onClick={() => remove(p.at)}
+                >
                   ✕
                 </button>
                 <span className="photodate">{p.date}</span>
