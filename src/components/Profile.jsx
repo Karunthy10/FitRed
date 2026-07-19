@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { S, Vb } from "./ui.jsx";
+import { uploadCedulaDoc } from "../data/sync.js";
 import {
   usr,
   meId,
@@ -224,12 +225,13 @@ function EditProfile({ u, force }) {
               type="file"
               accept="image/*,.pdf"
               style={{ display: "none" }}
-              onChange={(e) => {
+              onChange={async (e) => {
                 const f = e.target.files[0];
-                if (f) {
-                  setDoc(f.name);
-                  save({ cedulaDoc: f.name });
-                }
+                if (!f) return;
+                setDoc("Subiendo…");
+                const path = await uploadCedulaDoc(f);
+                setDoc(path ? f.name : f.name + " (se subirá al conectar)");
+                save({ cedulaDoc: f.name, cedulaDocPath: path || null });
               }}
             />
             <span className="btn ghost">

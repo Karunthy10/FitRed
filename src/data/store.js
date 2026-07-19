@@ -1,6 +1,8 @@
 import { Ke, Xe, ce, de, pe, ue, L, G, me, be, ge, xe, $, P } from "./seed.js";
 import {
   markLocalWrite,
+  syncProfile,
+  syncFollow,
   syncDeleteWorkout,
   syncDeletePost,
   syncCreateRoutine,
@@ -596,6 +598,7 @@ function updateProfile(patch) {
   Object.assign(p.users[p.me], patch);
   h();
   markLocalWrite();
+  syncProfile(p.users[p.me]);
 }
 
 // requestVerify = solicita verificación de la cuenta. La verificación real
@@ -606,6 +609,7 @@ function requestVerify() {
   p.users[p.me].verifyRequested = true;
   h();
   markLocalWrite();
+  syncProfile(p.users[p.me]);
 }
 
 // toggleFollow = seguir/dejar de seguir a un usuario. El grafo de follow del
@@ -616,11 +620,13 @@ function toggleFollow(id) {
   if (id === p.me) return;
   let me = p.users[p.me] || (p.users[p.me] = { id: p.me, username: p.me });
   me.following ||= [];
-  me.following = me.following.includes(id)
-    ? me.following.filter((x) => x !== id)
-    : [...me.following, id];
+  const nowOn = !me.following.includes(id);
+  me.following = nowOn
+    ? [...me.following, id]
+    : me.following.filter((x) => x !== id);
   h();
   markLocalWrite();
+  syncFollow(id, nowOn);
 }
 
 // isFollowing = ¿el usuario actual sigue a id?

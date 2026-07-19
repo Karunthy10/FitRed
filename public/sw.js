@@ -16,3 +16,20 @@ self.addEventListener('fetch', e => {
     })
   );
 });
+
+// Web Push: muestra la notificación del recordatorio de entrenar
+self.addEventListener('push', e => {
+  let data = { title: 'Kilo', body: 'Hora de entrenar.' };
+  try { data = { ...data, ...e.data.json() }; } catch {}
+  e.waitUntil(self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.matchAll({ type: 'window' }).then(list =>
+    list.length ? list[0].focus() : clients.openWindow('/')
+  ));
+});

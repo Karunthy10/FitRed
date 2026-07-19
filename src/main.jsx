@@ -3,7 +3,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { jsx as Ze } from "react/jsx-runtime";
 import { te } from "./components/App.jsx";
-import { q, H, Oe, He, pref } from "./data/store.js";
+import { q, H, Oe, He, pref, usr, meId } from "./data/store.js";
 import { initSync } from "./data/sync.js";
 
 // Inicializa/migra el "storage" local ANTES de que se monte la app
@@ -16,7 +16,7 @@ createRoot(document.getElementById("root")).render(
 
 // Auth anónima + fusión con la nube: corre en paralelo, sin bloquear el
 // primer render (la app ya se ve/usa con los datos locales de inmediato).
-initSync({ exportStateJSON: Oe, importStateJSON: He });
+initSync({ exportStateJSON: Oe, importStateJSON: He, getMe: () => usr(meId()) });
 
 // Recordatorio de entrenar: dispara una notificación a la hora elegida
 // mientras la app esté abierta o en segundo plano (los recordatorios con la

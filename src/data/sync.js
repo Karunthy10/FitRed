@@ -280,6 +280,100 @@ export function syncPostComment(postId, comment) {
   });
 }
 
+// --- Perfil remoto (tabla profiles) ---
+export function syncProfile(user) {
+  if (!user) return;
+  return mirror(
+    "profiles",
+    {
+      username: user.username || "atleta",
+      bio: user.bio || "",
+      role: user.role || "Atleta",
+      verify_requested: !!user.verifyRequested,
+      years_training: user.yearsTraining ?? null,
+      age: user.age ?? null,
+      cedula: user.cedula || null,
+      cedula_doc_path: user.cedulaDocPath || null,
+      updated_at: new Date().toISOString(),
+    },
+    { conflict: "id", key: "profiles:me" },
+  );
+}
+
+// --- Follows reales (solo entre usuarios con uuid remoto) ---
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export async function syncFollow(followeeId, on) {
+  if (!supabase || !status.authed || !UUID_RE.test(followeeId)) return;
+  try {
+    if (on)
+      await supabase.from("follows").upsert({ followee_id: followeeId });
+    else
+      await supabase.from("follows").delete().eq("followee_id", followeeId);
+  } catch {}
+}
+
+// --- Documento de cédula profesional (bucket privado) ---
+export async function uploadCedulaDoc(file) {
+  if (!supabase || !status.authed) return null;
+  try {
+    const { data: s } = await supabase.auth.getSession();
+    const uid = s?.session?.user?.id;
+    if (!uid) return null;
+    const path = `${uid}/cedula-${Date.now()}-${file.name}`;
+    const { error } = await supabase.storage.from("cedulas").upload(path, file);
+    if (error) throw error;
+    return path;
+  } catch {
+    return null;
+  }
+}
+
+// --- Push del recordatorio de entrenar ---
+export const VAPID_PUBLIC =
+  "BDIV5tks2X4MEg26BpppbrQ1sVLSCQiL_OYfXqCGAYXubg9jBnILPCh2gfr1D3R5BS3_LPVKJmLJp2EYVPhsPPQ";
+
+function b64ToU8(b64) {
+  const pad = "=".repeat((4 - (b64.length % 4)) % 4);
+  const raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+}
+
+// Suscribe el dispositivo a push y guarda la suscripción + hora elegida.
+// Devuelve true si quedó activo (requiere permiso y, en iOS, app instalada).
+export async function pushSubscribe(reminderTime) {
+  try {
+    if (!supabase || !("serviceWorker" in navigator) || !("PushManager" in window))
+      return false;
+    const reg = await navigator.serviceWorker.ready;
+    const sub =
+      (await reg.pushManager.getSubscription()) ||
+      (await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: b64ToU8(VAPID_PUBLIC),
+      }));
+    const { error } = await supabase.from("push_subscriptions").upsert({
+      subscription: sub.toJSON(),
+      reminder_time: reminderTime,
+      tz_offset_min: new Date().getTimezoneOffset(),
+      enabled: true,
+      updated_at: new Date().toISOString(),
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+export async function pushUnsubscribe() {
+  try {
+    if (!supabase) return;
+    await supabase
+      .from("push_subscriptions")
+      .update({ enabled: false, updated_at: new Date().toISOString() })
+      .neq("enabled", false);
+  } catch {}
+}
+
 // --- Snapshot completo (red de seguridad) ---
 // Con debounce: se sube como mucho un snapshot por ráfaga de guardados
 // (p. ej. registrar 10 series seguidas genera 1 snapshot, no 10).
@@ -320,7 +414,7 @@ async function pruneSnapshots(keep = 10) {
 }
 
 // --- Bootstrap: auth anónima + fusión de datos remotos al cargar ---
-export async function initSync({ exportStateJSON, importStateJSON }) {
+export async function initSync({ exportStateJSON, importStateJSON, getMe }) {
   if (!supabase) return;
   window.addEventListener("online", () => {
     setStatus({ online: true });
@@ -348,6 +442,8 @@ export async function initSync({ exportStateJSON, importStateJSON }) {
     }
     if (!session) return;
     setStatus({ authed: true });
+    // Publica/actualiza el perfil remoto con los datos locales
+    if (getMe) syncProfile(getMe());
   } catch {
     // Fallo de red al hablar con Supabase (sin internet, DNS, proxy, etc.)
     setStatus({ authed: false, online: false });

@@ -18,7 +18,7 @@ import {
   addBodyLog,
   bodyLog,
 } from "../data/store.js";
-import { subscribeSyncStatus } from "../data/sync.js";
+import { subscribeSyncStatus, pushSubscribe, pushUnsubscribe } from "../data/sync.js";
 
 const TABS = [
   ["musculos", "Músculos"],
@@ -474,10 +474,13 @@ function DataTab({ state, openProfile, bump }) {
         <b>Recordatorio de entrenar</b>
         <Toggle
           on={pref("reminderOn", false)}
-          onChange={(v) => {
+          onChange={async (v) => {
             setPref("reminderOn", v);
             bump();
-            if (v) ensureNotifyPermission();
+            if (v) {
+              await ensureNotifyPermission();
+              pushSubscribe(pref("reminderTime", "18:00"));
+            } else pushUnsubscribe();
           }}
           label="Recordarme entrenar"
           hint="una notificación a la hora que elijas"
@@ -491,6 +494,7 @@ function DataTab({ state, openProfile, bump }) {
               onChange={(e) => {
                 setPref("reminderTime", e.target.value);
                 bump();
+                pushSubscribe(e.target.value);
               }}
             />
           </label>
